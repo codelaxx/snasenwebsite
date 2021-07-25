@@ -88,5 +88,7 @@ function debug(output) {
     var parent = document.getElementById("debuglist");
     var listItem = document.createElement("li");
     listItem.innerHTML = output;
-    parent.appendChild(listItem);
+    //parent.appendChild(listItem);
+    // https://stackoverflow.com/questions/618089/can-i-insert-elements-to-the-beginning-of-an-element-using-appendchild
+    parent.prepend(listItem);
 }
