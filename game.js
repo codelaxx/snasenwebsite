@@ -64,6 +64,7 @@ function createSquare(idNumber, isMovable) {
       move("hitx: touchstartevent detected, woha!");
       move("hitx: " + ev);
       move("hitx: " + ev.targetTouches[0].target)
+      move("hitx: " + ev.targetTouches[0].target.id)
 
       // Set call preventDefault()
       ev.preventDefault();
