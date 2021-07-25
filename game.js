@@ -41,7 +41,10 @@ function createSquare(idNumber, isMovable) {
     //
     // Touch device support:::--->
     //
-    
+    // https://developer.mozilla.org/en-US/docs/Web/API/Touch_events/Using_Touch_Events
+    // remember, prevent default because often browsers also emulate mouseclicks
+    // 
+
     // Touch events
     item.addEventListener('touchstart', process_touchstart, false);
     //item.addEventListener('touchmove', process_touchmove, false);
@@ -58,8 +61,12 @@ function createSquare(idNumber, isMovable) {
       //default: gesture_not_supported(ev); break;
     //}
       console.log(ev);
-      move("touchstartevent detected, woha!");
-      move(ev);
+      move("hitx: touchstartevent detected, woha!");
+      move("hitx: " + ev);
+      move("hitx: " + ev.targetTouches[0].target)
+
+      // Set call preventDefault()
+      ev.preventDefault();
     }
   
     return item;
