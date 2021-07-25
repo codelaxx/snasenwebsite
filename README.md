@@ -1,37 +1,22 @@
-## Welcome to GitHub Pages
+Just a tutorial I was checking out, now added some simple game project and tested out github pages.
 
-You can use the [editor on GitHub](https://github.com/codelaxx/snasenwebsite/edit/main/README.md) to maintain and preview the content for your website in Markdown files.
+Be warned, if you enable Jekyl on the page, suddenly it overwrites your readme.md file, and if you are currently editing the file, and trie to commit the file after the jekyl setting has comitted to it, your changes are magically lost, silently, poof.
 
-Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
+Anyways, guide from scratch
 
-### Markdown
+- Create account on github
+- Create repo on your account
+- Add a readme.md file if you like (optional)
+- Create an index.html file (preferrably with this name), or another name if you don't mind writing a longer url to your github pages page.
+- Put som valid html in the file, like <html><body><h1>Hello</h1></body></html>
+- Commit/save changes in file
+- Go to settings of repo
+- Scroll down and select 'Pages'
+- Select master from dropdown
+- Skip Jekyl, and I assume you want to skip licence also, but that is up to you.
+- Click save
+- Wait a little while, and the url for the page will be shown , something like https://codelaxx.github.io/snasenwebsite/ , but with your username in the start of the url, and your repo name in the end of the url. If you didn't use index.html for your file name, you will have to add that after the last / to open that file (index.html is opened by default by browsers so that's why you don't have to put that in the url, but you can test it here and it will work like https://codelaxx.github.io/snasenwebsite/index.html)
 
-Markdown is a lightweight and easy-to-use syntax for styling your writing. It includes conventions for
+Tada, you are online with your page or pages
 
-```markdown
-Syntax highlighted code block
-
-# Header 1
-## Header 2
-### Header 3
-
-- Bulleted
-- List
-
-1. Numbered
-2. List
-
-**Bold** and _Italic_ and `Code` text
-
-[Link](url) and ![Image](src)
-```
-
-For more details see [GitHub Flavored Markdown](https://guides.github.com/features/mastering-markdown/).
-
-### Jekyll Themes
-
-Your Pages site will use the layout and styles from the Jekyll theme you have selected in your [repository settings](https://github.com/codelaxx/snasenwebsite/settings/pages). The name of this theme is saved in the Jekyll `_config.yml` configuration file.
-
-### Support or Contact
-
-Having trouble with Pages? Check out our [documentation](https://docs.github.com/categories/github-pages-basics/) or [contact support](https://support.github.com/contact) and we’ll help you sort it out.
+Now create a new repo and play arround with Jekyl with a pretty template or five (and change template after you have created your page, just to see how good it may look).
