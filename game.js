@@ -61,6 +61,7 @@ function setupGameBoard() {
 }
 
 function generateQuestionsAndAnswers() {
+    //Prep array with tiles to fill with values
     for (var i = 1; i <= numTiles; i++) {
         tiles.push(new Tile(i));
     }
@@ -68,19 +69,19 @@ function generateQuestionsAndAnswers() {
     //Add questions on half the tiles
     for (var i = 1; i <= Math.floor(numTiles/2); i++) {
         var calc = makeUniqeCalculation();
-        //TODO: use this cacl instead!!!!!!!!!!!!!!!!!!!!
 
-        var a = Math.floor(Math.random() * 11);
-        var b = Math.floor(Math.random() * 11);
+        var a = calc.operandA;
+        var b = calc.operandB;
+        var answer = calc.result;
     
         var indexQuestion = findRandomAvailableTileIndex();
-        var indexAnswer = findRandomAvailableTileIndex();
+        var indexAnswer = findRandomAvailableTileIndex(); //TODO: BUG HERE, it may find the one above since it's not inserted yet!
 
         tiles[indexQuestion].text = "Solve: " + a + " + " + b + " = ?";
         tiles[indexQuestion].linkedTileId = indexAnswer;
         tiles[indexQuestion].isUsed = true;
 
-        tiles[indexAnswer].text = "Answer: " + (a + b);
+        tiles[indexAnswer].text = "Answer: " + answer;
         tiles[indexAnswer].linkedTileId = indexQuestion;
         tiles[indexAnswer].isUsed = true;
     }
