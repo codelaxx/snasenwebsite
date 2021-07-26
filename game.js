@@ -172,7 +172,7 @@ function generateInsertableSquare(idNumber, isMovable) {
       //moveTile("hitx: " + ev.targetTouches[0].target);
       //moveTile("hitx: " + ev.targetTouches[0].target.id);
 
-      flipTile(ev.targetTouches[0].tarhet.id;
+      flipTile(ev.targetTouches[0].target.id;
 
       // Set call preventDefault()
       ev.preventDefault();
