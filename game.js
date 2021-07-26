@@ -37,8 +37,8 @@ function showStartScreen() {
     // ask for turn based or live (well, that's when it's online)
     // ask for difficulty/board size
     
-    width = 4; // TODO: refactor variable name to numBoardCols
-    height = 4; // TODO: refactor variable name to numBoardRows
+    width = 3; // TODO: refactor variable name to numBoardCols
+    height = 3; // TODO: refactor variable name to numBoardRows
     numTiles = width * height;
     debug("Starting game with " + numTiles + " tiles.");
 
