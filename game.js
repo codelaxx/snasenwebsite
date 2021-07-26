@@ -1,23 +1,31 @@
-setup();
+setupGameBoard();
 
-function setup() {
+// Note to self, it would have been easyer to start with "pick two", which would have simple "check for equality"
+// And then go for the slider game alter, which has more logic
+
+const correctBoard = ["item_1", "item_2", "item_3", "item_4", "item_5", "item_6", "item_7", "item_8", "item_9"];
+var numMoves = 0;
+var bestScore = 20;
+
+function setupGameBoard() {
     var parent = document.getElementById("gameboard");
 
     for (var i=1; i<9; i++) {
-        var item = createSquare(i, true);
+        var item = generateInsertableSquare(i, true);
         parent.appendChild(item);
     }
     
-    var item = createSquare(9, false);
+    var item = generateInsertableSquare(9, false);
     parent.appendChild(item);
 
 }
 
-function createSquare(idNumber, isMovable) {
+function generateInsertableSquare(idNumber, isMovable) {
     var item = document.createElement("div");
     item.innerHTML = idNumber;
-    item.id = ("item_" +idNumber);
+    item.id = idNumber;
     item.className = "grid-item";
+    item.isFlipped = false;
 
     if (isMovable) {
         item.style.backgroundColor = ("rgb(0, 0, " +idNumber*20 + ")" );
@@ -35,7 +43,7 @@ function createSquare(idNumber, isMovable) {
         console.log(event);
         console.log(event.path[0].id);
 
-        move(event.path[0].id)
+        flipTile(event.path[0].id)
     }
 
     //
@@ -61,10 +69,10 @@ function createSquare(idNumber, isMovable) {
       //default: gesture_not_supported(ev); break;
     //}
       console.log(ev);
-      move("hitx: touchstartevent detected, woha!");
-      move("hitx: " + ev);
-      move("hitx: " + ev.targetTouches[0].target)
-      move("hitx: " + ev.targetTouches[0].target.id)
+      //move("hitx: touchstartevent detected, woha!");
+      //move("hitx: " + ev);
+      //move("hitx: " + ev.targetTouches[0].target)
+      moveTile("hitx: " + ev.targetTouches[0].target.id)
 
       // Set call preventDefault()
       ev.preventDefault();
@@ -73,7 +81,25 @@ function createSquare(idNumber, isMovable) {
     return item;
 }
 
-function move(id) {
+function flipTile(id) {
+    var tile = document.getElementById(id);
+    debug("Tile state: " + tile.isFlipped);
+    if (tile.isFlipped) {
+        tile.style.backgroundColor = ("rgb(0, 0, " +id*20 + ")" ); //Make original shade of color
+        tile.isFlipped = false;
+    } else {
+        tile.style.backgroundColor = ("rgb(" + id*20 + ", " + id*20 + ", 0)" ); //Make yellowish in same nuance as original shade
+        tile.isFlipped = true;
+    }
+   
+    numMoves++
+    document.getElementById("currentGameInfo").innerHTML = "Moves used: " + numMoves + ", best score: " + bestScore;
+    debug(id);
+};
+
+function moveTile(id) {
+    //Note, not doing this now, will do this later, rateher doing "find equals now"
+
     //TODO: move it
     // ie, check that it is adjacent to number 10, then
     // transition this to white
@@ -81,6 +107,10 @@ function move(id) {
     // if order is 1...10, game won
     // bonus, make function for taking in pictures, adjusting/clipping, and transitioning
 
+    // verify if board order matches correctBoard, if yes, tada, victory, show game won/num moves->play again
+
+    numMoves++
+    document.getElementById("currentGameInfo").innerHTML = "Moves used: " + numMoves + ", best score: " + bestScore;
     debug(id);
 };
 
