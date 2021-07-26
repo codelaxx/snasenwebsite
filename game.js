@@ -8,7 +8,7 @@ function setup() {
         parent.appendChild(item);
     }
     
-    var item = createSquare(10, false);
+    var item = createSquare(9, false);
     parent.appendChild(item);
 
 }
