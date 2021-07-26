@@ -167,10 +167,12 @@ function generateInsertableSquare(idNumber, isMovable) {
       //default: gesture_not_supported(ev); break;
     //}
       console.log(ev);
-      //move("hitx: touchstartevent detected, woha!");
-      //move("hitx: " + ev);
-      //move("hitx: " + ev.targetTouches[0].target)
-      moveTile("hitx: " + ev.targetTouches[0].target.id)
+      //moveTile("hitx: touchstartevent detected, woha!");
+      //moveTile("hitx: " + ev);
+      //moveTile("hitx: " + ev.targetTouches[0].target);
+      //moveTile("hitx: " + ev.targetTouches[0].target.id);
+
+      flipTile(ev.targetTouches[0].tarhet.id;
 
       // Set call preventDefault()
       ev.preventDefault();
