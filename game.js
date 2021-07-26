@@ -126,12 +126,12 @@ function generateInsertableSquare(idNumber, isMovable) {
     item.className = "grid-item";
 
     if (isMovable) {
-        item.style.backgroundColor = ("rgb(0, 0, " +idNumber*10 + ")" );
+        item.style.backgroundColor = ("rgb(0, 0, " + (idNumber*10 + 50) + ")" );
     } else {
         item.style.backgroundColor = "white";
     }
 
-    item.style.color = "red";
+    item.style.color = "lightgrey"; //Font color on tiles
 
     // https://stackoverflow.com/questions/4631975/detecting-mouse-click-on-div-with-javascript-without-side-effects
     // https://stackoverflow.com/questions/4825295/onclick-to-get-the-id-of-the-clicked-button
@@ -197,7 +197,7 @@ function flipTile(id) {
             console.log("This tile was allready found, so ignoring the click...")
         } else {
             console.log("was flipped so turning face down")
-            tile.style.backgroundColor = ("rgb(0, 0, " +id*10 + ")" ); //Make original shade of color
+            tile.style.backgroundColor = ("rgb(0, 0, " + (id*10 + 50) + ")" ); //Make original shade of color
             tile.innerHTML = tile.id;
             tiles[tileIdx].isFlipped = false;  
         }
@@ -209,11 +209,11 @@ function flipTile(id) {
         if (numFlippedNotFound >= 2) {
             console.log("ignoring click and returning, player can't flip more than two unpaired cards at the same time!")
         } else if (tiles[tileIdx].isUsed === false) {
-            console.log("found blank tile, so locks it face up");
+            console.log("found blank tile, so lock it face up");
             tiles[tileIdx].isFound = true;
             tiles[tileIdx].isFlipped = true;
             tile.innerHTML = tiles[tileIdx].text + " BONUS TILE ";
-            tile.style.backgroundColor = ("rgb(0, " + id*10 + ", 0)" ); //Make greenish in same nuance as original shade
+            tile.style.backgroundColor = ("rgb(0, " + (id * 10 + 50) + ", 0)" ); //Make greenish in same nuance as original shade
 
             numMoves++
         } else if ( tiles[linkedTileIdx].isFlipped ) { // inconcistent that linked tileid is zero based/index based!
@@ -221,18 +221,18 @@ function flipTile(id) {
             tiles[tileIdx].isFound = true;
             tiles[tileIdx].isFlipped = true;
             tile.innerHTML = tiles[tileIdx].text;
-            tile.style.backgroundColor = ("rgb(0, " + id*10 + ", 0)" ); //Make greenish in same nuance as original shade
+            tile.style.backgroundColor = ("rgb(0, " + (id * 10 + 50) + ", 0)" ); //Make greenish in same nuance as original shade
 
             tiles[linkedTileIdx].isFound = true;
             //above is allready flipped
             //above is allready with text
             var tileLinked = document.getElementById(tiles[linkedTileIdx].id); //Just making it explicit, because on index which is zero based, we have the element with an id which is 1 based. We could just have added 1, but why not use the actuall id...
-            tileLinked.style.backgroundColor = ("rgb(0, " + tileLinked.id*10 + ", 0)" ); //Make greenish in same nuance as original shade
+            tileLinked.style.backgroundColor = ("rgb(0, " + (tileLinked.id * 10 + 50) + ", 0)" ); //Make greenish in same nuance as original shade
             
             numMoves++
         } else {
             console.log("found no matching tile flipped when flipping this, and wasn't a bonus tile")
-            tile.style.backgroundColor = ("rgb(" + id*10 + ", 0 , 0)" ); //Make redish in same nuance as original shade
+            tile.style.backgroundColor = ("rgb(" + (id * 10 + 50) + ", 0 , 0)" ); //Make redish in same nuance as original shade
             tile.innerHTML = tiles[id-1].text;
             tiles[tileIdx].isFlipped = true;         
             
