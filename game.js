@@ -1,34 +1,103 @@
-setupGameBoard();
-
 // Note to self, it would have been easyer to start with "pick two", which would have simple "check for equality"
 // And then go for the slider game alter, which has more logic
 
-const correctBoard = ["item_1", "item_2", "item_3", "item_4", "item_5", "item_6", "item_7", "item_8", "item_9"];
+// nuiscance, classes on top, inits on bottom!
+
 var numMoves = 0;
 var bestScore = 20;
+var width = 0;
+var height = 0;
+var numTiles = width * height;
+var tiles = new Array;
+
+class Tile {
+    constructor(id) {
+        this.id = id;
+        this.text = "";
+        this.linkedTileId = 0;
+        this.isFound = false;
+        this.isUsed = false;
+        this.isFlipped = false;
+    }
+}
+
+function showStartScreen() {
+    // ask for num players
+    // ask for seperate or joint board
+    // ask for turn based or live (well, that's when it's online)
+    // ask for difficulty/board size
+    
+    width = 3; // Hardcoded, will need to change css to alter layout (.grid-container.grid-template-columns)
+    height = 3
+    numTiles = width * height;
+    debug("Starting game with " + numTiles + " tiles.");
+}
 
 function setupGameBoard() {
+    generateQuestionsAndAnswers();
+
     var parent = document.getElementById("gameboard");
 
-    for (var i=1; i<9; i++) {
+    for (var i = 1; i <= numTiles; i++) {
         var item = generateInsertableSquare(i, true);
         parent.appendChild(item);
     }
     
-    var item = generateInsertableSquare(9, false);
-    parent.appendChild(item);
+    //Making last tile special/blank, only needed for slider game
+    //var item = generateInsertableSquare(numTiles, false);
+    //parent.appendChild(item);
 
 }
+
+function generateQuestionsAndAnswers() {
+    for (var i = 1; i <= numTiles; i++) {
+        tiles.push(new Tile(i));
+    }
+
+    //Add questions on half the tiles
+    for (var i = 1; i <= Math.floor(numTiles/2); i++) {
+        var a = Math.floor(Math.random() * 11);
+        var b = Math.floor(Math.random() * 11);
+    
+        var indexQuestion = findRandomAvailableTileIndex();
+        var indexAnswer = findRandomAvailableTileIndex();
+
+        tiles[indexQuestion].text = "Solve: " + a + " + " + b + " = ?";
+        tiles[indexQuestion].linkedTileId = indexAnswer;
+        tiles[indexQuestion].isUsed = true;
+
+        tiles[indexAnswer].text = "Answer: " + (a + b);
+        tiles[indexAnswer].linkedTileId = indexQuestion;
+        tiles[indexAnswer].isUsed = true;
+    }
+
+    
+
+}
+
+function findRandomAvailableTileIndex() {
+    var triesRemaining = 999;
+    while (triesRemaining > 0) {
+        triesRemaining--;
+        var indexToCheck = Math.floor(Math.random() * numTiles);
+        if ( tiles[indexToCheck].isUsed === false) {
+            return indexToCheck;
+        } else {
+            console.log("tile generation collision counter: " + (999 - triesRemaining) );
+        }
+    }
+}
+
+
 
 function generateInsertableSquare(idNumber, isMovable) {
     var item = document.createElement("div");
     item.innerHTML = idNumber;
     item.id = idNumber;
     item.className = "grid-item";
-    item.isFlipped = false;
 
     if (isMovable) {
-        item.style.backgroundColor = ("rgb(0, 0, " +idNumber*20 + ")" );
+        item.style.backgroundColor = ("rgb(0, 0, " +idNumber*10 + ")" );
     } else {
         item.style.backgroundColor = "white";
     }
@@ -83,13 +152,43 @@ function generateInsertableSquare(idNumber, isMovable) {
 
 function flipTile(id) {
     var tile = document.getElementById(id);
-    debug("Tile state: " + tile.isFlipped);
-    if (tile.isFlipped) {
-        tile.style.backgroundColor = ("rgb(0, 0, " +id*20 + ")" ); //Make original shade of color
-        tile.isFlipped = false;
+    var tileIdx = id-1;
+    var linkedTileIdx = tiles[tileIdx].linkedTileId;
+
+    debug("Tile " + id + ", index " + tileIdx + " had isFlipped state: " + tiles[tileIdx].isFlipped + ", and related tile index " + linkedTileIdx + ", with tile id " + (linkedTileIdx + 1) + " has flippedState " + tiles[linkedTileIdx].isFlipped);
+
+    if (tiles[tileIdx].isFlipped) {
+        console.log("was flipped so turning face down")
+        tile.style.backgroundColor = ("rgb(0, 0, " +id*10 + ")" ); //Make original shade of color
+        tile.innerHTML = tile.id;
+        tiles[tileIdx].isFlipped = false;
     } else {
-        tile.style.backgroundColor = ("rgb(" + id*20 + ", " + id*20 + ", 0)" ); //Make yellowish in same nuance as original shade
-        tile.isFlipped = true;
+        if (tiles[tileIdx].isUsed === false) {
+            console.log("found blank tile, so locks it face up");
+            tiles[tileIdx].isFound = true;
+            tiles[tileIdx].isFlipped = true;
+            tile.innerHTML = tiles[tileIdx].text + " BONUS TILE ";
+            tile.style.backgroundColor = ("rgb(0, " + id*10 + ", 0)" ); //Make greenish in same nuance as original shade
+        } else if ( tiles[linkedTileIdx].isFlipped ) { // inconcistent that linked tileid is zero based/index based!
+            console.log("found matching tiles, so locking both face up");
+            tiles[tileIdx].isFound = true;
+            tiles[tileIdx].isFlipped = true;
+            tile.innerHTML = tiles[tileIdx].text;
+            tile.style.backgroundColor = ("rgb(0, " + id*10 + ", 0)" ); //Make greenish in same nuance as original shade
+
+            tiles[linkedTileIdx].isFound = true;
+            //above is allready flipped
+            //above is allready with text
+            var tileLinked = document.getElementById(tiles[linkedTileIdx].id); //Just making it explicit, because on index which is zero based, we have the element with an id which is 1 based. We could just have added 1, but why not use the actuall id...
+            tileLinked.style.backgroundColor = ("rgb(0, " + tileLinked.id*10 + ", 0)" ); //Make greenish in same nuance as original shade
+            
+        } else {
+            console.log("found no matching tile flipped when flipping this, and wasn't a bonus tile")
+            tile.style.backgroundColor = ("rgb(" + id*10 + ", 0 , 0)" ); //Make redish in same nuance as original shade
+            tile.innerHTML = tiles[id-1].text;
+            tiles[tileIdx].isFlipped = true;           
+        }
+
     }
    
     numMoves++
@@ -123,3 +222,9 @@ function debug(output) {
     // https://stackoverflow.com/questions/618089/can-i-insert-elements-to-the-beginning-of-an-element-using-appendchild
     parent.prepend(listItem);
 }
+
+// Run from here, bla bla hoisting foo bar, classes are not hoisted
+
+showStartScreen();
+setupGameBoard();
+
