@@ -109,12 +109,12 @@ function generateQuestionsAndAnswers() {
     
         var indexQuestion = findRandomAvailableTileIndex();
         
-        tiles[indexQuestion].text = "Solve: " + a + " + " + b + " = ?";
+        tiles[indexQuestion].text = a + " + " + b;
         tiles[indexQuestion].isUsed = true;
         var indexAnswer = findRandomAvailableTileIndex(); //Important that this is done after the question is assigned and tagged with isUsed on a tile, so we don't end up with question and answer on same tiles
         tiles[indexQuestion].linkedTileId = indexAnswer;
 
-        tiles[indexAnswer].text = "Answer: " + answer;
+        tiles[indexAnswer].text = answer;
         tiles[indexAnswer].linkedTileId = indexQuestion;
         tiles[indexAnswer].isUsed = true;
     }
@@ -157,6 +157,7 @@ function generateInsertableSquare(idNumber, isMovable) {
     item.innerHTML = idNumber;
     item.id = idNumber;
     item.className = "grid-item";
+    item.style.fontSize = "35px";
 
     if (isMovable) {
         item.style.backgroundColor = ("rgb(0, 0, " + (idNumber*10 + 50) + ")" );
