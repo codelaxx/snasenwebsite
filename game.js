@@ -75,11 +75,11 @@ function generateQuestionsAndAnswers() {
         var answer = calc.result;
     
         var indexQuestion = findRandomAvailableTileIndex();
-        var indexAnswer = findRandomAvailableTileIndex(); //TODO: BUG HERE, it may find the one above since it's not inserted yet!
-
+        
         tiles[indexQuestion].text = "Solve: " + a + " + " + b + " = ?";
-        tiles[indexQuestion].linkedTileId = indexAnswer;
         tiles[indexQuestion].isUsed = true;
+        var indexAnswer = findRandomAvailableTileIndex(); //Important that this is done after the question is assigned and tagged with isUsed on a tile, so we don't end up with question and answer on same tiles
+        tiles[indexQuestion].linkedTileId = indexAnswer;
 
         tiles[indexAnswer].text = "Answer: " + answer;
         tiles[indexAnswer].linkedTileId = indexQuestion;
@@ -190,8 +190,6 @@ function flipTile(id) {
         debug("Tile " + id + ", index " + tileIdx + " had isFlipped state: " + tiles[tileIdx].isFlipped + ", no related tile since it's a blank bonus tile");
     }
 
-
-
     if (tiles[tileIdx].isFlipped) {
         if (tiles[tileIdx].isFound) {
             console.log("This tile was allready found, so ignoring the click...")
@@ -242,7 +240,24 @@ function flipTile(id) {
     }
    
     document.getElementById("currentGameInfo").innerHTML = "Moves used: " + numMoves + ", best score: " + bestScore;
+
+    if ( gameOver() ) {
+        var elem = document.getElementById("currentGameInfo");
+        elem.innerHTML = "Great job! GAME OVER! Moves used: " + numMoves + ", best score: " + bestScore;
+        if (bestScore > numMoves) {
+            bestScore = numMoves;
+            elem.innerHTML += "   WOOOOW, thats a new highscore dude or dudette!";
+        }        
+    }
 };
+
+function gameOver() {
+    if ( tiles.filter(aTile => (!aTile.isFound) ).length <= 0 ) {
+        return true;
+    } else {
+        return false;
+    }
+}
 
 function moveTile(id) {
     //Note, not doing this now, will do this later, rateher doing "find equals now"
