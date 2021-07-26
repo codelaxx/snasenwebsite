@@ -287,6 +287,7 @@ function flipTile(id) {
         //TODO: Make a delay here, even ok to lock main thread for 8 seconds
         //Also, how will this nest? I don't think we have any mess, all is in events, and we reset all handlers by removing nodes explicitly, not just setting innerHTML to "" when setting up board.
         showStartScreen();
+        numMoves = 0;
         setupGameBoard();
     }
 };
