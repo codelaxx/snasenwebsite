@@ -9,7 +9,6 @@ var width = 0;
 var height = 0;
 var numTiles = width * height;
 var tiles = new Array;
-var calculations = new Array;
 
 class Tile {
     constructor(id) {
@@ -38,7 +37,7 @@ function showStartScreen() {
     // ask for turn based or live (well, that's when it's online)
     // ask for difficulty/board size
     
-    width = 3; // Hardcoded, will need to change css to alter layout (.grid-container.grid-template-columns)
+    width = 3; // Hardcoded, will need to change css to alter layout (.grid-container.grid-template-columns), just do a regular findEBId...
     height = 3
     numTiles = width * height;
     debug("Starting game with " + numTiles + " tiles.");
@@ -48,6 +47,12 @@ function setupGameBoard() {
     generateQuestionsAndAnswers();
 
     var parent = document.getElementById("gameboard");
+    
+    //setup may be called after a full round is played, so cleanup is needed
+    //https://www.javascripttutorial.net/dom/manipulating/remove-all-child-nodes/
+    while (parent.firstChild) {
+        parent.removeChild(parent.firstChild);
+    }
 
     for (var i = 1; i <= numTiles; i++) {
         var item = generateInsertableSquare(i, true);
@@ -61,14 +66,20 @@ function setupGameBoard() {
 }
 
 function generateQuestionsAndAnswers() {
+    //may be called after a full round is played, so cleanup is needed
+    tiles = new Array;
+    
     //Prep array with tiles to fill with values
     for (var i = 1; i <= numTiles; i++) {
         tiles.push(new Tile(i));
     }
 
+    //Hold calculations temporarily to avoid collisions on results
+    var calculations = new Array;
+
     //Add questions on half the tiles
     for (var i = 1; i <= Math.floor(numTiles/2); i++) {
-        var calc = makeUniqeCalculation();
+        var calc = makeUniqeCalculation(calculations);
 
         var a = calc.operandA;
         var b = calc.operandB;
@@ -87,20 +98,20 @@ function generateQuestionsAndAnswers() {
     }
 }
 
-function makeUniqeCalculation() {
+function makeUniqeCalculation(existingCalculations) {
     var calc = new Calculation("+");
     calc.operandA = Math.floor(Math.random() * 11);
     calc.operandB = Math.floor(Math.random() * 11);
     calc.result = calc.operandA + calc.operandB; //TODO: parse or fix and use the actual operand, worst case use a switch statement
 
-    while (calculations.filter(calculation => (calculation.result === calc.result)).length > 0 ) {
+    while (existingCalculations.filter(calculation => (calculation.result === calc.result)).length > 0 ) {
         //TODO: make a breaker to abort if we take too long to resolce all collisions
         calc.operandA = Math.floor(Math.random() * 11);
         calc.operandB = Math.floor(Math.random() * 11);
         calc.result = calc.operandA + calc.operandB;
     }
 
-    calculations.push(calc);
+    existingCalculations.push(calc);
     return calc;
 }
 
@@ -250,6 +261,11 @@ function flipTile(id) {
             bestScore = numMoves;
             elem.innerHTML += "   WOOOOW, thats a new highscore dude or dudette!";
         }        
+
+        //TODO: Make a delay here, even ok to lock main thread for 8 seconds
+        //Also, how will this nest? I don't think we have any mess, all is in events, and we reset all handlers by removing nodes explicitly, not just setting innerHTML to "" when setting up board.
+        showStartScreen();
+        setupGameBoard();
     }
 };
 
