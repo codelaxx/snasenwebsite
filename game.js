@@ -14,11 +14,21 @@ class Tile {
     constructor(id) {
         this.id = id;
         this.text = "";
-        this.linkedTileId = 0;
+        this.linkedTileId = -1;
         this.isFound = false;
         this.isUsed = false;
         this.isFlipped = false;
     }
+}
+
+class Calculation {
+    constructor(operation) {
+        this.operation = operation;
+        this.operandA = 0;
+        this.operandB = 0;
+        this.result = 0;
+    }
+
 }
 
 function showStartScreen() {
@@ -155,20 +165,38 @@ function flipTile(id) {
     var tileIdx = id-1;
     var linkedTileIdx = tiles[tileIdx].linkedTileId;
 
-    debug("Tile " + id + ", index " + tileIdx + " had isFlipped state: " + tiles[tileIdx].isFlipped + ", and related tile index " + linkedTileIdx + ", with tile id " + (linkedTileIdx + 1) + " has flippedState " + tiles[linkedTileIdx].isFlipped);
+    if (tiles[tileIdx].isUsed) {
+        debug("Tile " + id + ", index " + tileIdx + " had isFlipped state: " + tiles[tileIdx].isFlipped + ", and related tile index " + linkedTileIdx + ", with tile id " + (linkedTileIdx + 1) + " has flippedState " + tiles[linkedTileIdx].isFlipped);
+    } else {
+        debug("Tile " + id + ", index " + tileIdx + " had isFlipped state: " + tiles[tileIdx].isFlipped + ", no related tile since it's a blank bonus tile");
+    }
+
+
 
     if (tiles[tileIdx].isFlipped) {
-        console.log("was flipped so turning face down")
-        tile.style.backgroundColor = ("rgb(0, 0, " +id*10 + ")" ); //Make original shade of color
-        tile.innerHTML = tile.id;
-        tiles[tileIdx].isFlipped = false;
+        if (tiles[tileIdx].isFound) {
+            console.log("This tile was allready found, so ignoring the click...")
+        } else {
+            console.log("was flipped so turning face down")
+            tile.style.backgroundColor = ("rgb(0, 0, " +id*10 + ")" ); //Make original shade of color
+            tile.innerHTML = tile.id;
+            tiles[tileIdx].isFlipped = false;  
+        }
     } else {
-        if (tiles[tileIdx].isUsed === false) {
+        //https://medium.com/poka-techblog/simplify-your-javascript-use-map-reduce-and-filter-bd02c593cc2d
+        var numFlippedNotFound = tiles.filter(aTile => (aTile.isFlipped && !aTile.isFound) ).length;
+        console.log("Face up unpaired tiles before turning this tile: " + numFlippedNotFound)
+        
+        if (numFlippedNotFound >= 2) {
+            console.log("ignoring click and returning, player can't flip more than two unpaired cards at the same time!")
+        } else if (tiles[tileIdx].isUsed === false) {
             console.log("found blank tile, so locks it face up");
             tiles[tileIdx].isFound = true;
             tiles[tileIdx].isFlipped = true;
             tile.innerHTML = tiles[tileIdx].text + " BONUS TILE ";
             tile.style.backgroundColor = ("rgb(0, " + id*10 + ", 0)" ); //Make greenish in same nuance as original shade
+
+            numMoves++
         } else if ( tiles[linkedTileIdx].isFlipped ) { // inconcistent that linked tileid is zero based/index based!
             console.log("found matching tiles, so locking both face up");
             tiles[tileIdx].isFound = true;
@@ -182,18 +210,19 @@ function flipTile(id) {
             var tileLinked = document.getElementById(tiles[linkedTileIdx].id); //Just making it explicit, because on index which is zero based, we have the element with an id which is 1 based. We could just have added 1, but why not use the actuall id...
             tileLinked.style.backgroundColor = ("rgb(0, " + tileLinked.id*10 + ", 0)" ); //Make greenish in same nuance as original shade
             
+            numMoves++
         } else {
             console.log("found no matching tile flipped when flipping this, and wasn't a bonus tile")
             tile.style.backgroundColor = ("rgb(" + id*10 + ", 0 , 0)" ); //Make redish in same nuance as original shade
             tile.innerHTML = tiles[id-1].text;
-            tiles[tileIdx].isFlipped = true;           
+            tiles[tileIdx].isFlipped = true;         
+            
+            numMoves++
         }
 
     }
    
-    numMoves++
     document.getElementById("currentGameInfo").innerHTML = "Moves used: " + numMoves + ", best score: " + bestScore;
-    debug(id);
 };
 
 function moveTile(id) {
