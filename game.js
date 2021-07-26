@@ -9,6 +9,7 @@ var width = 0;
 var height = 0;
 var numTiles = width * height;
 var tiles = new Array;
+var calculations = new Array;
 
 class Tile {
     constructor(id) {
@@ -66,6 +67,9 @@ function generateQuestionsAndAnswers() {
 
     //Add questions on half the tiles
     for (var i = 1; i <= Math.floor(numTiles/2); i++) {
+        var calc = makeUniqeCalculation();
+        //TODO: use this cacl instead!!!!!!!!!!!!!!!!!!!!
+
         var a = Math.floor(Math.random() * 11);
         var b = Math.floor(Math.random() * 11);
     
@@ -80,9 +84,23 @@ function generateQuestionsAndAnswers() {
         tiles[indexAnswer].linkedTileId = indexQuestion;
         tiles[indexAnswer].isUsed = true;
     }
+}
 
-    
+function makeUniqeCalculation() {
+    var calc = new Calculation("+");
+    calc.operandA = Math.floor(Math.random() * 11);
+    calc.operandB = Math.floor(Math.random() * 11);
+    calc.result = calc.operandA + calc.operandB; //TODO: parse or fix and use the actual operand, worst case use a switch statement
 
+    while (calculations.filter(calculation => (calculation.result === calc.result)).length > 0 ) {
+        //TODO: make a breaker to abort if we take too long to resolce all collisions
+        calc.operandA = Math.floor(Math.random() * 11);
+        calc.operandB = Math.floor(Math.random() * 11);
+        calc.result = calc.operandA + calc.operandB;
+    }
+
+    calculations.push(calc);
+    return calc;
 }
 
 function findRandomAvailableTileIndex() {
