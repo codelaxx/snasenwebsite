@@ -9,6 +9,7 @@ var width = 0;
 var height = 0;
 var numTiles = width * height;
 var tiles = new Array;
+var gameIsRestarting = false;
 
 class Tile {
     constructor(id) {
@@ -154,7 +155,7 @@ function findRandomAvailableTileIndex() {
 
 function generateInsertableSquare(idNumber, isMovable) {
     var item = document.createElement("div");
-    item.innerHTML = idNumber;
+    item.innerHTML = "?"; //Or if you want visible numbers for debugging, use idNumber;
     item.id = idNumber;
     item.className = "grid-item";
     item.style.fontSize = "35px";
@@ -232,7 +233,7 @@ function flipTile(id) {
         } else {
             console.log("was flipped so turning face down")
             tile.style.backgroundColor = ("rgb(0, 0, " + (id*10 + 50) + ")" ); //Make original shade of color
-            tile.innerHTML = tile.id;
+            tile.innerHTML = "?"; //or if you want tile id for debugging, use tile.id
             tiles[tileIdx].isFlipped = false;  
         }
     } else {
@@ -246,7 +247,7 @@ function flipTile(id) {
             console.log("found blank tile, so lock it face up");
             tiles[tileIdx].isFound = true;
             tiles[tileIdx].isFlipped = true;
-            tile.innerHTML = tiles[tileIdx].text + " BONUS TILE ";
+            tile.innerHTML = tiles[tileIdx].text + " BONUS<BR>TILE ";
             tile.style.backgroundColor = ("rgb(0, " + (id * 10 + 50) + ", 0)" ); //Make greenish in same nuance as original shade
 
             numMoves++
@@ -285,16 +286,27 @@ function flipTile(id) {
             elem.innerHTML += "   WOOOOW, thats a new highscore dude or dudette!";
         }        
 
-        //TODO: Make a delay here, even ok to lock main thread for 8 seconds
-        //Also, how will this nest? I don't think we have any mess, all is in events, and we reset all handlers by removing nodes explicitly, not just setting innerHTML to "" when setting up board.
-        showStartScreen();
-        numMoves = 0;
-        setupGameBoard();
+        console.log("restarting game initiated")
+        if (!gameIsRestarting) {
+            gameIsRestarting = true;
+
+            // defer the execution of anonymous function for 3 seconds and go directly to next block of code.
+            setTimeout(function(){ 
+                showStartScreen();
+                numMoves = 0;
+                setupGameBoard(); //TODO: this will later be called from showStartScreen based on settings there
+                gameIsRestarting = false;                
+                console.log("restart of game complete")
+            }, 5000);
+
+            console.log("restarting game set up as deferred for 5 seconds")
+        }    
     }
 };
 
 function gameOver() {
     if ( tiles.filter(aTile => (!aTile.isFound) ).length <= 0 ) {
+        console.log("game over, game won, wuhu!!!");
         return true;
     } else {
         return false;
