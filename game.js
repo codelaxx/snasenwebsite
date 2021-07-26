@@ -37,10 +37,32 @@ function showStartScreen() {
     // ask for turn based or live (well, that's when it's online)
     // ask for difficulty/board size
     
-    width = 3; // Hardcoded, will need to change css to alter layout (.grid-container.grid-template-columns), just do a regular findEBId...
-    height = 3
+    width = 4; // TODO: refactor variable name to numBoardCols
+    height = 4; // TODO: refactor variable name to numBoardRows
     numTiles = width * height;
     debug("Starting game with " + numTiles + " tiles.");
+
+    var maxWidthPx = 600;
+    var tileWidth = Math.floor(maxWidthPx / width);
+
+    var colCssTxt = "";
+    for (var i = 0; i< width; i++) {
+        if (colCssTxt !== "") {
+            colCssTxt += " ";
+        }
+        colCssTxt += tileWidth + "px";
+    }
+    document.getElementById("gameboard").style.gridTemplateColumns = colCssTxt;
+
+    var rowCssTxt = "";
+    for (var i = 0; i< height; i++) {
+        if (rowCssTxt !== "") {
+            rowCssTxt += " ";
+        }
+        rowCssTxt += tileWidth + "px"; // Using same height as width
+    }
+
+    document.getElementById("gameboard").style.gridTemplateRows = rowCssTxt;
 }
 
 function setupGameBoard() {
