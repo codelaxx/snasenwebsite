@@ -51,7 +51,8 @@ function showStartScreen() {
         if (colCssTxt !== "") {
             colCssTxt += " ";
         }
-        colCssTxt += tileWidth + "px";
+        <!--colCssTxt += tileWidth + "px";-->
+        colCssTxt += "80px";
     }
     document.getElementById("gameboard").style.gridTemplateColumns = colCssTxt;
 
