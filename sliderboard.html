@@ -12,18 +12,21 @@
 </head>
 <body>
     
-    <div class="grid-container" id="gameboard"></div>
+    <div id="gameboard" class="grid-container"></div>
 
-    <div id="currentGameInfo" style="margin-top:20px; background-color: lightslategrey;">Moves used: _</div>
+    <!--Auch, fix camelcase or whatever concention dictates for all ids, here is a mix!!!!!-->
+    <div id="currentGameInfo">Moves used: _</div>
 
-    <div style="margin-top: 20px; background-color: lightsteelblue">Debug info:
+    <br>
+
+    <div id="debuginfo">Debug info:
+        <div style="border: 1px solid black;" id="mytester" onmousedown="debug(id)">Click here to fire onmousedown and write to debug field below.</div>
+        <!-- note, when adding onmousedown here, it will not refactor, at elast not in my editor, so add from js like other func -->
         <ul id="debuglist">
-
         </ul>
     </div>
     
-    <div style="border: 1px solid black;" id="mytester" onmousedown="debug(id)">Click here to fire onmousedown and write to debug field above.</div>
-    <!-- note, when adding onmousedown here, it will not refactor, at elast not in my editor, so add from js like other func -->
+   
 
     <script src='game.js'></script>
 </body>

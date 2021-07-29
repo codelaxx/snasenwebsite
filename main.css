@@ -10,3 +10,18 @@
     align-items: center;
     border: 1px solid black;
 }
+
+#currentGameInfo {
+    display: inline-block;
+    visibility: visible;
+    margin-top: 20px;
+    background-color: lightslategrey;
+}
+
+#debuginfo {
+    /* display: inline-block; */
+    display: none; /* removes from view, ie takes zero space */
+    visibility: visible; /* value hidden hides it, but still takes up actuall space of element */
+    margin-top: 20px;
+    background-color: lightslategrey;
+}

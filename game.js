@@ -38,12 +38,12 @@ function showStartScreen() {
     // ask for turn based or live (well, that's when it's online)
     // ask for difficulty/board size
     
-    width = 3; // TODO: refactor variable name to numBoardCols
+    width = 4; // TODO: refactor variable name to numBoardCols
     height = 3; // TODO: refactor variable name to numBoardRows
     numTiles = width * height;
     debug("Starting game with " + numTiles + " tiles.");
 
-    var maxWidthPx = 600;
+    var maxWidthPx = 550;
     var tileWidth = Math.floor(maxWidthPx / width);
 
     var colCssTxt = "";
@@ -247,7 +247,7 @@ function flipTile(id) {
             console.log("found blank tile, so lock it face up");
             tiles[tileIdx].isFound = true;
             tiles[tileIdx].isFlipped = true;
-            tile.innerHTML = tiles[tileIdx].text + " BONUS<BR>TILE ";
+            tile.innerHTML = tiles[tileIdx].text + " BONUS<BR>:D ";
             tile.style.backgroundColor = ("rgb(0, " + (id * 10 + 50) + ", 0)" ); //Make greenish in same nuance as original shade
 
             numMoves++
@@ -283,7 +283,7 @@ function flipTile(id) {
         elem.innerHTML = "Great job! GAME OVER! Moves used: " + numMoves + ", best score: " + bestScore;
         if (bestScore > numMoves) {
             bestScore = numMoves;
-            elem.innerHTML += "   WOOOOW, thats a new highscore dude or dudette!";
+            elem.innerHTML += "   WOW! Thats a new highscore!";
         }        
 
         console.log("restarting game initiated")
