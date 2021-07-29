@@ -2,6 +2,9 @@ Just a tutorial I was checking out, now added some simple game project and teste
 
 Be warned, if you enable Jekyl on the page, suddenly it overwrites your readme.md file, and if you are currently editing the file, and trie to commit the file after the jekyl setting has comitted to it, your changes are magically lost, silently, poof.
 
+Nup! What happens is it dumps the jekyl in a new branch, gh-pages, and it has an index.md file tjere with the jekyl content.
+(Just merge it from master/main and adjust the github pages settungs from within github settings to use the master/main branch).
+
 Anyways, guide from scratch
 
 - Create account on github
