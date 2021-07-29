@@ -11,7 +11,14 @@ Anyways, guide from scratch
 - Create repo on your account
 - Add a readme.md file if you like (optional)
 - Create an index.html file (preferrably with this name), or another name if you don't mind writing a longer url to your github pages page.
-- Put som valid html in the file, like <html><body><h1>Hello</h1></body></html>
+- Put som valid html in the file, like 
+```html
+<html>
+<body>
+<h1>Hello</h1>
+</body>
+</html>
+```
 - Commit/save changes in file
 - Go to settings of repo
 - Scroll down and select 'Pages'
