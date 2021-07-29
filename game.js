@@ -43,7 +43,7 @@ function showStartScreen() {
     numTiles = width * height;
     debug("Starting game with " + numTiles + " tiles.");
 
-    var maxWidthPx = 550;
+    var maxWidthPx = 300;
     var tileWidth = Math.floor(maxWidthPx / width);
 
     var colCssTxt = "";
@@ -88,7 +88,7 @@ function setupGameBoard() {
 
 
     
-    document.getElementById("currentGameInfo").innerHTML = "Moves used: " + numMoves + ", best score: " + bestScore;
+    document.getElementById("currentGameInfo").innerHTML = "Game On! Best score: " + bestScore;
 }
 
 function generateQuestionsAndAnswers() {
