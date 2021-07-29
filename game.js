@@ -87,6 +87,9 @@ function setupGameBoard() {
     //var item = generateInsertableSquare(numTiles, false);
     //parent.appendChild(item);
 
+
+    
+    document.getElementById("currentGameInfo").innerHTML = "Moves used: " + numMoves + ", best score: " + bestScore;
 }
 
 function generateQuestionsAndAnswers() {
