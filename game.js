@@ -159,7 +159,7 @@ function generateInsertableSquare(idNumber, isMovable) {
     item.innerHTML = "?"; //Or if you want visible numbers for debugging, use idNumber;
     item.id = idNumber;
     item.className = "grid-item";
-    item.style.fontSize = "35px";
+    item.style.fontSize = "15px";
 
     if (isMovable) {
         item.style.backgroundColor = ("rgb(0, 0, " + (idNumber*10 + 50) + ")" );
