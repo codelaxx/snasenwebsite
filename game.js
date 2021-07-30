@@ -13,8 +13,9 @@ var tilerows = 0;
 var numTiles = tilecols * tilerows;
 var tiles = new Array;
 var gameIsRestarting = false;
-var previousTile = -1;
-var currentTile = -1;
+var oldestTileId = -1;
+var newestTileId = -1;
+var currentTileId = -1;
 var autoCloseMode = "no";
 
 class Tile {
@@ -252,9 +253,17 @@ function generateInsertableSquare(idNumber, isMovable) {
 }
 
 function flipTile(id) {
-    var tile = document.getElementById(id);
+    var currentTile = document.getElementById(id);
     var tileIdx = id-1;
     var linkedTileIdx = tiles[tileIdx].linkedTileId;
+
+    var oldestTile = document.getElementById(oldestTileId);
+    var oldestTileIdx = oldestTileId-1;
+
+    var newestTile = document.getElementById(newestTileId);
+    var newestTileIdx = newestTileId-1;
+
+
 
     if (tiles[tileIdx].isUsed) {
         debug("Tile " + id + ", index " + tileIdx + " had isFlipped state: " + tiles[tileIdx].isFlipped + ", and related tile index " + linkedTileIdx + ", with tile id " + (linkedTileIdx + 1) + " has flippedState " + tiles[linkedTileIdx].isFlipped);
@@ -266,26 +275,54 @@ function flipTile(id) {
     var numFlippedNotFound = tiles.filter(aTile => (aTile.isFlipped && !aTile.isFound) ).length;
     console.log("Face up unpaired tiles before turning this tile: " + numFlippedNotFound)
     
+    currentTileId = id;
     if (autoCloseMode === no) {
         //do nothing, let the regular logic handle it
     } else if (tiles[tileIdx].isFlipped && tiles[tileIdx].isFound) {
         //flipped and found, ignore
     } else if (tiles[tileIdx].isFlipped && !tiles[tileIdx].isFound) {
         //flipped but not found, so will be flipped down in main logic below
-        //if it is first, replace first with last but keep last
-        //if it is last, replace last with first, but keep first
-    } else if (autoCloseMode === "first" && numFlippedNotFound === 2) {
-        //TODO: flip down first, then move last to first, and current to first
+        if (currentTileId === newestTileId) {
+            //if it is newest, replace newest tile with oldest tile but also keep oldest
+            newestTileId = oldestTileId;
+        }
+        if (currentTileId === oldestTileId) {
+            //if it is oldest, replace oldest with newest, but keep newest
+            oldestTileId = newestTileId;
+        }
+    } else if (autoCloseMode === "oldest" && numFlippedNotFound === 2) {
+        //TODO: flip down oldesst, then move oldest pointer to newest, and current to newest
+        oldestTile.style.backgroundColor = ("rgb(0, 0, " + (oldestTileId*10 + 50) + ")" ); //Make original shade of color
+        oldestTile.innerHTML = "?"; //or if you want tile id for debugging, use tile.id
+        tiles[oldestTileIdx].isFlipped = false;          
+        oldestTileId = newestTileId;
+        newestTileId = currentTileId;
         numFlippedNotFound--;
-    } else if (autoCloseMode === "last" && numFlippedNotFound === 2) {
-        //TODO: flip down last, then store current in last
+    } else if (autoCloseMode === "newest" && numFlippedNotFound === 2) {
+        //flip down newest, then store current pointer in newest
+        newestTile.style.backgroundColor = ("rgb(0, 0, " + (newestTileId*10 + 50) + ")" ); //Make original shade of color
+        newestTile.innerHTML = "?"; //or if you want tile id for debugging, use tile.id
+        tiles[newestTileIdx].isFlipped = false;          
+        //oldestTile = oldestTile;
+        newestTileId = currentTileId;
         numFlippedNotFound--;
     } else if (autoCloseMode === "both" && numFlippedNotFound === 2) {
-        //turn down both, then store ??? in first and last? probably -1 is ok, and adding new tiles will shuffle correctly
+        //TODO: EXCLUDE CASE WHERE THEY ARE PAIRS or they can never be found, and probably do -1 for oldest/newest
+        //turn down both. then store -1 in first and last pointers
+        oldestTile.style.backgroundColor = ("rgb(0, 0, " + (oldestTileId*10 + 50) + ")" ); //Make original shade of color
+        oldestTile.innerHTML = "?"; //or if you want tile id for debugging, use tile.id
+        tiles[oldestTileIdx].isFlipped = false;          
+        newestTile.style.backgroundColor = ("rgb(0, 0, " + (newestTileId*10 + 50) + ")" ); //Make original shade of color
+        newestTile.innerHTML = "?"; //or if you want tile id for debugging, use tile.id
+        tiles[newestTileIdx].isFlipped = false;          
+        oldestTileId = -1;
+        newestTileId = -1;
         numFlippedNotFound = 0;
     } else {
         //TODO: where and how is the best way to update with first/last values when first tile is turned
         //here maybe, and if autoclose no, then nobody cares anyways if it's right
+        oldestTileId = newestTileId;
+        newestTileId = currentTileId;
     }
 
 
@@ -297,8 +334,8 @@ function flipTile(id) {
             console.log("This tile was allready found, so ignoring the click...")
         } else {
             console.log("was flipped so turning face down")
-            tile.style.backgroundColor = ("rgb(0, 0, " + (id*10 + 50) + ")" ); //Make original shade of color
-            tile.innerHTML = "?"; //or if you want tile id for debugging, use tile.id
+            currentTile.style.backgroundColor = ("rgb(0, 0, " + (id*10 + 50) + ")" ); //Make original shade of color
+            currentTile.innerHTML = "?"; //or if you want tile id for debugging, use tile.id
             tiles[tileIdx].isFlipped = false;  
         }
     }
@@ -313,8 +350,8 @@ function flipTile(id) {
             console.log("found blank tile, so lock it face up");
             tiles[tileIdx].isFound = true;
             tiles[tileIdx].isFlipped = true;
-            tile.innerHTML = tiles[tileIdx].text + " BONUS<BR>:D ";
-            tile.style.backgroundColor = ("rgb(0, " + (id * 10 + 50) + ", 0)" ); //Make greenish in same nuance as original shade
+            currentTile.innerHTML = tiles[tileIdx].text + " BONUS<BR>:D ";
+            currentTile.style.backgroundColor = ("rgb(0, " + (id * 10 + 50) + ", 0)" ); //Make greenish in same nuance as original shade
 
             numMoves++
         }
@@ -323,8 +360,8 @@ function flipTile(id) {
             console.log("found matching tiles, so locking both face up");
             tiles[tileIdx].isFound = true;
             tiles[tileIdx].isFlipped = true;
-            tile.innerHTML = tiles[tileIdx].text;
-            tile.style.backgroundColor = ("rgb(0, " + (id * 10 + 50) + ", 0)" ); //Make greenish in same nuance as original shade
+            currentTile.innerHTML = tiles[tileIdx].text;
+            currentTile.style.backgroundColor = ("rgb(0, " + (id * 10 + 50) + ", 0)" ); //Make greenish in same nuance as original shade
 
             tiles[linkedTileIdx].isFound = true;
             //above is allready flipped
@@ -337,8 +374,8 @@ function flipTile(id) {
         //Handle turning "wrong" tile, not pair
         else {
             console.log("found no matching tile flipped when flipping this, and wasn't a bonus tile")
-            tile.style.backgroundColor = ("rgb(" + (id * 10 + 50) + ", 0 , 0)" ); //Make redish in same nuance as original shade
-            tile.innerHTML = tiles[id-1].text;
+            currentTile.style.backgroundColor = ("rgb(" + (id * 10 + 50) + ", 0 , 0)" ); //Make redish in same nuance as original shade
+            currentTile.innerHTML = tiles[id-1].text;
             tiles[tileIdx].isFlipped = true;         
             
             numMoves++
