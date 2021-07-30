@@ -4,7 +4,7 @@
 
 // TODO:
 // -make a range based on num tiles for how much each tile should brighten, it's perfect with 9 or 12, but really bad with 25
-
+// THERE IS A BUG ON FLIPPING THE BONUS TILE WITH AUTO CLOSW !!!!
 
 var numMoves = 0;
 var bestScore = 20;
@@ -324,7 +324,7 @@ function flipTile(id) {
         oldestTileId = newestTileId;
         newestTileId = currentTileId;
     }
-
+    // TODO!!!!!!!!!!!!!! BUG ON BONUS TILE!!! when finding the bonus tile we have allready flipped it arround above here, so fix that
 
 
 
