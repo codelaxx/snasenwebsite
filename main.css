@@ -1,5 +1,6 @@
 .grid-container {
-    display: grid;
+    /* display: grid; */
+    display: none;
     grid-template-columns: 150px 150px 150px;
     grid-template-rows: 150px 150px 150px;
 }
@@ -11,9 +12,9 @@
     border: 1px solid black;
 }
 
-#currentGameInfo {
-    display: inline-block;
-    visibility: visible;
+#currentgameinfo {
+    /* display: inline-block; */
+    display: none;
     margin-top: 20px;
     background-color: lightslategrey;
 }

@@ -1,15 +1,21 @@
 // Note to self, it would have been easyer to start with "pick two", which would have simple "check for equality"
-// And then go for the slider game alter, which has more logic
+// And then go for the slider game after, which has more logic
+// jup, and so I did
 
-// nuiscance, classes on top, inits on bottom!
+// TODO:
+// -make a range based on num tiles for how much each tile should brighten, it's perfect with 9 or 12, but really bad with 25
+
 
 var numMoves = 0;
 var bestScore = 20;
-var width = 0;
-var height = 0;
-var numTiles = width * height;
+var tilecols = 0;
+var tilerows = 0;
+var numTiles = tilecols * tilerows;
 var tiles = new Array;
 var gameIsRestarting = false;
+var previousTile = -1;
+var currentTile = -1;
+var autoCloseMode = "no";
 
 class Tile {
     constructor(id) {
@@ -32,22 +38,42 @@ class Calculation {
 
 }
 
-function showStartScreen() {
+// Run startGame from here to skip start screen and go with defaults
+// Note to self, classes are not hoisted, so functions can't see classes that are defined below them in code
+//startGame();
+
+function startGame() {
     // ask for num players
     // ask for seperate or joint board
     // ask for turn based or live (well, that's when it's online)
     // ask for difficulty/board size
     
-    width = 3; // TODO: refactor variable name to numBoardCols
-    height = 3; // TODO: refactor variable name to numBoardRows
-    numTiles = width * height;
+    tilecols = 3; // TODO: refactor variable name to numBoardCols
+    tilerows = 3; // TODO: refactor variable name to numBoardRows
+
+    var parent = document.getElementById("startscreen");
+    
+    var cols = document.getElementById("cols").value;
+    var rows = document.getElementById("rows").value;
+    if (cols > 0) {tilecols = cols};
+    if (rows > 0) {tilerows = rows};
+
+    var modes = document.getElementsByName('autoClose'); //OBS, by name, the radio buttons common name!!!
+    for(var i = 0; i < modes.length; i++){
+        if(modes[i].checked){
+            autoCloseMode = modes[i].value;
+            console.log("Autoclose mode selected on radio buttons: " + autoCloseMode);
+        }
+    }
+
+    numTiles = tilecols * tilerows;
     debug("Starting game with " + numTiles + " tiles.");
 
     var maxWidthPx = 300;
-    var tileWidth = Math.floor(maxWidthPx / width);
+    var tileWidth = Math.floor(maxWidthPx / tilecols);
 
     var colCssTxt = "";
-    for (var i = 0; i< width; i++) {
+    for (var i = 0; i< tilecols; i++) {
         if (colCssTxt !== "") {
             colCssTxt += " ";
         }
@@ -56,7 +82,7 @@ function showStartScreen() {
     document.getElementById("gameboard").style.gridTemplateColumns = colCssTxt;
 
     var rowCssTxt = "";
-    for (var i = 0; i< height; i++) {
+    for (var i = 0; i< tilerows; i++) {
         if (rowCssTxt !== "") {
             rowCssTxt += " ";
         }
@@ -64,6 +90,10 @@ function showStartScreen() {
     }
 
     document.getElementById("gameboard").style.gridTemplateRows = rowCssTxt;
+
+    document.getElementById("startscreen").style.display = "none";
+    // don't call this until button is clicked 
+    setupGameBoard();
 }
 
 function setupGameBoard() {
@@ -87,8 +117,10 @@ function setupGameBoard() {
     //parent.appendChild(item);
 
 
-    
-    document.getElementById("currentGameInfo").innerHTML = "Game On! Best score: " + bestScore;
+    //Kill start screen, turn on game board and message (TODO: move both in same div)
+    document.getElementById("gameboard").style.display = "grid";
+    document.getElementById("currentgameinfo").innerHTML = "Game On! Best score: " + bestScore;
+    document.getElementById("currentgameinfo").style.display = "inline-block";
 }
 
 function generateQuestionsAndAnswers() {
@@ -230,6 +262,7 @@ function flipTile(id) {
         debug("Tile " + id + ", index " + tileIdx + " had isFlipped state: " + tiles[tileIdx].isFlipped + ", no related tile since it's a blank bonus tile");
     }
 
+    //Handle face up tiles
     if (tiles[tileIdx].isFlipped) {
         if (tiles[tileIdx].isFound) {
             console.log("This tile was allready found, so ignoring the click...")
@@ -239,14 +272,19 @@ function flipTile(id) {
             tile.innerHTML = "?"; //or if you want tile id for debugging, use tile.id
             tiles[tileIdx].isFlipped = false;  
         }
-    } else {
+    }
+    //Handle face down tile
+    else {
         //https://medium.com/poka-techblog/simplify-your-javascript-use-map-reduce-and-filter-bd02c593cc2d
         var numFlippedNotFound = tiles.filter(aTile => (aTile.isFlipped && !aTile.isFound) ).length;
         console.log("Face up unpaired tiles before turning this tile: " + numFlippedNotFound)
         
+        //Not allowed to turn tiles if 2 allready turned
         if (numFlippedNotFound >= 2) {
             console.log("ignoring click and returning, player can't flip more than two unpaired cards at the same time!")
-        } else if (tiles[tileIdx].isUsed === false) {
+        } 
+        //Handle turning the blank tile
+        else if (tiles[tileIdx].isUsed === false) {
             console.log("found blank tile, so lock it face up");
             tiles[tileIdx].isFound = true;
             tiles[tileIdx].isFlipped = true;
@@ -254,7 +292,9 @@ function flipTile(id) {
             tile.style.backgroundColor = ("rgb(0, " + (id * 10 + 50) + ", 0)" ); //Make greenish in same nuance as original shade
 
             numMoves++
-        } else if ( tiles[linkedTileIdx].isFlipped ) { // inconcistent that linked tileid is zero based/index based!
+        }
+        //Handle finding pair
+        else if ( tiles[linkedTileIdx].isFlipped ) { // inconcistent that linked tileid is zero based/index based!
             console.log("found matching tiles, so locking both face up");
             tiles[tileIdx].isFound = true;
             tiles[tileIdx].isFlipped = true;
@@ -268,7 +308,9 @@ function flipTile(id) {
             tileLinked.style.backgroundColor = ("rgb(0, " + (tileLinked.id * 10 + 50) + ", 0)" ); //Make greenish in same nuance as original shade
             
             numMoves++
-        } else {
+        }
+        //Handle turning "wrong" tile, not pair
+        else {
             console.log("found no matching tile flipped when flipping this, and wasn't a bonus tile")
             tile.style.backgroundColor = ("rgb(" + (id * 10 + 50) + ", 0 , 0)" ); //Make redish in same nuance as original shade
             tile.innerHTML = tiles[id-1].text;
@@ -279,10 +321,10 @@ function flipTile(id) {
 
     }
    
-    document.getElementById("currentGameInfo").innerHTML = "Moves used: " + numMoves + ", best score: " + bestScore;
+    document.getElementById("currentgameinfo").innerHTML = "Moves used: " + numMoves + ", best score: " + bestScore;
 
     if ( gameOver() ) {
-        var elem = document.getElementById("currentGameInfo");
+        var elem = document.getElementById("currentgameinfo");
         elem.innerHTML = "Great job! GAME OVER! Moves used: " + numMoves + ", best score: " + bestScore;
         if (bestScore > numMoves) {
             bestScore = numMoves;
@@ -295,7 +337,7 @@ function flipTile(id) {
 
             // defer the execution of anonymous function for 3 seconds and go directly to next block of code.
             setTimeout(function(){ 
-                showStartScreen();
+                startGame();
                 numMoves = 0;
                 setupGameBoard(); //TODO: this will later be called from showStartScreen based on settings there
                 gameIsRestarting = false;                
@@ -329,7 +371,7 @@ function moveTile(id) {
     // verify if board order matches correctBoard, if yes, tada, victory, show game won/num moves->play again
 
     numMoves++
-    document.getElementById("currentGameInfo").innerHTML = "Moves used: " + numMoves + ", best score: " + bestScore;
+    document.getElementById("currentgameinfo").innerHTML = "Moves used: " + numMoves + ", best score: " + bestScore;
     debug(id);
 };
 
@@ -342,9 +384,3 @@ function debug(output) {
     // https://stackoverflow.com/questions/618089/can-i-insert-elements-to-the-beginning-of-an-element-using-appendchild
     parent.prepend(listItem);
 }
-
-// Run from here, bla bla hoisting foo bar, classes are not hoisted
-
-showStartScreen();
-setupGameBoard();
-

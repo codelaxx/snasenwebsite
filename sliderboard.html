@@ -11,11 +11,43 @@
      crossorigin="anonymous"></script>
 </head>
 <body>
+
+    <div id="startscreen" style="background-color: lightseagreen;">
+        
+        <h1>Startscreen</h1>
+        <!-- todo: make scrollers for the numbers to work better on touch devices, and also, make radios bigger or use something else-->
+        Width (recomended 4) <input id="cols" type=number><br>
+        Height (recomended 3) <input id="rows" type=number><br>
+        <br>
+        <div id="tileAutoCloseMode">
+            Autoclose tiles
+            <div>
+                <input type="radio" id="oldest" name="autoClose" value="oldest" checked="checked">
+                <label for="oldest">Oldest</label>
+            </div>
+            <div>
+                <input type="radio" id="newest" name="autoClose" value="newest">
+                <label for="newest">Newest</label>
+            </div>
+            <div>
+                <input type="radio" id="both" name="autoClose" value="both">
+                <label for="both">Both</label>
+            </div>
+            <div>
+                <input type="radio" id="no" name="autoClose" value="no">
+                <label for="no">No</label>
+            </div>
+        </div>
+
+        <button onclick="startGame()" style="border-radius: 3px; border: solid 1px black; background-color: slateblue;">Start Game</button>
+    </div>
+
+
     
     <div id="gameboard" class="grid-container"></div>
 
     <!--Auch, fix camelcase or whatever concention dictates for all ids, here is a mix!!!!!-->
-    <div id="currentGameInfo">Moves used: _</div>
+    <div id="currentgameinfo">Moves used: _</div>
 
     <br>
 
