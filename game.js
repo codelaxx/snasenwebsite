@@ -262,6 +262,35 @@ function flipTile(id) {
         debug("Tile " + id + ", index " + tileIdx + " had isFlipped state: " + tiles[tileIdx].isFlipped + ", no related tile since it's a blank bonus tile");
     }
 
+    //https://medium.com/poka-techblog/simplify-your-javascript-use-map-reduce-and-filter-bd02c593cc2d
+    var numFlippedNotFound = tiles.filter(aTile => (aTile.isFlipped && !aTile.isFound) ).length;
+    console.log("Face up unpaired tiles before turning this tile: " + numFlippedNotFound)
+    
+    if (autoCloseMode === no) {
+        //do nothing, let the regular logic handle it
+    } else if (tiles[tileIdx].isFlipped && tiles[tileIdx].isFound) {
+        //flipped and found, ignore
+    } else if (tiles[tileIdx].isFlipped && !tiles[tileIdx].isFound) {
+        //flipped but not found, so will be flipped down in main logic below
+        //if it is first, replace first with last but keep last
+        //if it is last, replace last with first, but keep first
+    } else if (autoCloseMode === "first" && numFlippedNotFound === 2) {
+        //TODO: flip down first, then move last to first, and current to first
+        numFlippedNotFound--;
+    } else if (autoCloseMode === "last" && numFlippedNotFound === 2) {
+        //TODO: flip down last, then store current in last
+        numFlippedNotFound--;
+    } else if (autoCloseMode === "both" && numFlippedNotFound === 2) {
+        //turn down both, then store ??? in first and last? probably -1 is ok, and adding new tiles will shuffle correctly
+        numFlippedNotFound = 0;
+    } else {
+        //TODO: where and how is the best way to update with first/last values when first tile is turned
+        //here maybe, and if autoclose no, then nobody cares anyways if it's right
+    }
+
+
+
+
     //Handle face up tiles
     if (tiles[tileIdx].isFlipped) {
         if (tiles[tileIdx].isFound) {
@@ -275,10 +304,6 @@ function flipTile(id) {
     }
     //Handle face down tile
     else {
-        //https://medium.com/poka-techblog/simplify-your-javascript-use-map-reduce-and-filter-bd02c593cc2d
-        var numFlippedNotFound = tiles.filter(aTile => (aTile.isFlipped && !aTile.isFound) ).length;
-        console.log("Face up unpaired tiles before turning this tile: " + numFlippedNotFound)
-        
         //Not allowed to turn tiles if 2 allready turned
         if (numFlippedNotFound >= 2) {
             console.log("ignoring click and returning, player can't flip more than two unpaired cards at the same time!")
