@@ -13,16 +13,15 @@ var tilerows = 0;
 var numTiles = tilecols * tilerows;
 var tiles = new Array;
 var gameIsRestarting = false;
-var oldestTileId = -1;
-var newestTileId = -1;
-var currentTileId = -1;
+var oldestTileIdx = -1;
+var newestTileIdx = -1;
 var autoCloseMode = "no";
 
 class Tile {
-    constructor(id) {
-        this.id = id;
+    constructor(idx) {
+        this.id = idx;
         this.text = "";
-        this.linkedTileId = -1;
+        this.linkedTileId = -1; //TODO: might as well call this linkedTileIdx since that's what it is, and that is used as id...
         this.isFound = false;
         this.isUsed = false;
         this.isFlipped = false;
@@ -59,6 +58,7 @@ function startGame() {
     if (cols > 0) {tilecols = cols};
     if (rows > 0) {tilerows = rows};
 
+    //Extract which radiobutton is checked by itterating all radios in autoClose
     var modes = document.getElementsByName('autoClose'); //OBS, by name, the radio buttons common name!!!
     for(var i = 0; i < modes.length; i++){
         if(modes[i].checked){
@@ -74,7 +74,7 @@ function startGame() {
     var tileWidth = Math.floor(maxWidthPx / tilecols);
 
     var colCssTxt = "";
-    for (var i = 0; i< tilecols; i++) {
+    for (var i = 0; i < tilecols; i++) {
         if (colCssTxt !== "") {
             colCssTxt += " ";
         }
@@ -89,11 +89,10 @@ function startGame() {
         }
         rowCssTxt += tileWidth + "px"; // Using same height as width
     }
-
     document.getElementById("gameboard").style.gridTemplateRows = rowCssTxt;
 
     document.getElementById("startscreen").style.display = "none";
-    // don't call this until button is clicked 
+
     setupGameBoard();
 }
 
@@ -108,28 +107,27 @@ function setupGameBoard() {
         parent.removeChild(parent.firstChild);
     }
 
-    for (var i = 1; i <= numTiles; i++) {
-        var item = generateInsertableSquare(i, true);
+    for (var i = 0; i < numTiles; i++) {
+        var item = generateInsertableSquare(i);
         parent.appendChild(item);
     }
     
     //Making last tile special/blank, only needed for slider game
-    //var item = generateInsertableSquare(numTiles, false);
+    //var item = generateInsertableSquare(numTiles);
     //parent.appendChild(item);
 
-
-    //Kill start screen, turn on game board and message (TODO: move both in same div)
+    //Hide start screen, turn on game board and message (TODO: move both in same div)
     document.getElementById("gameboard").style.display = "grid";
     document.getElementById("currentgameinfo").innerHTML = "Game On! Best score: " + bestScore;
     document.getElementById("currentgameinfo").style.display = "inline-block";
 }
 
 function generateQuestionsAndAnswers() {
-    //may be called after a full round is played, so cleanup is needed
+    //called both on start and after a full round is played, so cleanup is needed
     tiles = new Array;
     
     //Prep array with tiles to fill with values
-    for (var i = 1; i <= numTiles; i++) {
+    for (var i = 0; i < numTiles; i++) {
         tiles.push(new Tile(i));
     }
 
@@ -159,12 +157,12 @@ function generateQuestionsAndAnswers() {
 
 function makeUniqeCalculation(existingCalculations) {
     var calc = new Calculation("+");
-    calc.operandA = Math.floor(Math.random() * 11);
+    calc.operandA = Math.floor(Math.random() * 21);
     calc.operandB = Math.floor(Math.random() * 11);
     calc.result = calc.operandA + calc.operandB; //TODO: parse or fix and use the actual operand, worst case use a switch statement
 
     while (existingCalculations.filter(calculation => (calculation.result === calc.result)).length > 0 ) {
-        //TODO: make a breaker to abort if we take too long to resolce all collisions
+        //TODO: make a breaker to abort if we take too long to resolve all collisions
         calc.operandA = Math.floor(Math.random() * 11);
         calc.operandB = Math.floor(Math.random() * 11);
         calc.result = calc.operandA + calc.operandB;
@@ -189,40 +187,35 @@ function findRandomAvailableTileIndex() {
 
 
 
-function generateInsertableSquare(idNumber, isMovable) {
+function generateInsertableSquare(idxNumber) {
     var item = document.createElement("div");
-    item.innerHTML = "?"; //Or if you want visible numbers for debugging, use idNumber;
-    item.id = idNumber;
+    item.innerHTML = "?"; //Or if you want visible numbers for debugging, use idxNumber;
+    item.innerHTML = "? (Debug: idx " + idxNumber + ", pair on idx " + tiles[idxNumber].linkedTileId + ")";
+    item.id = idxNumber;
     item.className = "grid-item";
     item.style.fontSize = "15px";
 
-    if (isMovable) {
-        item.style.backgroundColor = ("rgb(0, 0, " + (idNumber*10 + 50) + ")" );
-    } else {
-        item.style.backgroundColor = "white";
-    }
-
+    item.style.backgroundColor = ("rgb(0, 0, " + (idxNumber*10 + 50) + ")" );
     item.style.color = "lightgrey"; //Font color on tiles
 
     // https://stackoverflow.com/questions/4631975/detecting-mouse-click-on-div-with-javascript-without-side-effects
     // https://stackoverflow.com/questions/4825295/onclick-to-get-the-id-of-the-clicked-button
     // item.onclick... would it be the same?
-    //item.onclick = "move(id)";
+    // item.onclick = "move(id)";
     item.onclick = function(event) {
         console.log(event);
         console.log(event.path[0].id);
 
-        flipTile(event.path[0].id)
+        var idOnEvent = event.path[0].id;
+        var idxFromEvent = idOnEvent;
+        flipTile(idxFromEvent);
     }
 
-    //
     // Touch device support:::--->
-    //
     // https://developer.mozilla.org/en-US/docs/Web/API/Touch_events/Using_Touch_Events
-    // remember, prevent default because often browsers also emulate mouseclicks
-    // 
+    // remember, prevent default because often browsers also emulate mouseclicks 
 
-    // Touch events
+    // Touch events, just using touchstart, will detect several fingers at once and fire one event per finger
     item.addEventListener('touchstart', process_touchstart, false);
     //item.addEventListener('touchmove', process_touchmove, false);
     //item.addEventListener('touchcancel', process_touchcancel, false);
@@ -243,7 +236,9 @@ function generateInsertableSquare(idNumber, isMovable) {
       //moveTile("hitx: " + ev.targetTouches[0].target);
       //moveTile("hitx: " + ev.targetTouches[0].target.id);
 
-      flipTile(ev.targetTouches[0].target.id);
+      var idOnEvent = ev.targetTouches[0].target.id
+      var idxFromEvent = idOnEvent;
+      flipTile(idxFromEvent);
 
       // Set call preventDefault()
       ev.preventDefault();
@@ -252,123 +247,157 @@ function generateInsertableSquare(idNumber, isMovable) {
     return item;
 }
 
-function flipTile(id) {
-    var currentTile = document.getElementById(id);
-    var currentTileIdx = id-1;
+function flipTile(idx) {
+    var currentTileIdx = idx;
+    var currentTile = document.getElementById(currentTileIdx);
     var linkedTileIdx = tiles[currentTileIdx].linkedTileId;
 
-    var oldestTile = document.getElementById(oldestTileId);
-    var oldestTileIdx = oldestTileId-1;
-
-    var newestTile = document.getElementById(newestTileId);
-    var newestTileIdx = newestTileId-1;
-
-
+    var oldestTile = document.getElementById(oldestTileIdx);
+    var newestTile = document.getElementById(newestTileIdx);
 
     if (tiles[currentTileIdx].isUsed) {
-        debug("BEFORE: Tile/idx " + id + "/" + currentTileIdx + ", isFlipped: " + tiles[currentTileIdx].isFlipped + ", related/idx " + (linkedTileIdx+1) + "/" + linkedTileIdx + ", isFlipped: " + tiles[linkedTileIdx].isFlipped);
+        debug("BEFORE: TileIdx/isFlipped " + currentTileIdx + "/" + tiles[currentTileIdx].isFlipped + ", relatedIdx/isFlipped " + linkedTileIdx + "/" + tiles[linkedTileIdx].isFlipped);
         debug("BEFORE: OldestIdx: " + oldestTileIdx + ", newestIdx: " + newestTileIdx + ", currentIdx: " + currentTileIdx)
     } else {
-        debug("BEFORE: Tile/idx " + id + "/" + currentTileIdx + ", isFlipped: " + tiles[currentTileIdx].isFlipped + ", no related tile since it's a blank bonus tile");
+        debug("BEFORE: TileIdx/isFlipped " + currentTileIdx + "/" + tiles[currentTileIdx].isFlipped + ", no related tile since it's a blank bonus tile");
+        debug("BEFORE: OldestIdx: " + oldestTileIdx + ", newestIdx: " + newestTileIdx + ", currentIdx: " + currentTileIdx)
     }
+
 
     //https://medium.com/poka-techblog/simplify-your-javascript-use-map-reduce-and-filter-bd02c593cc2d
     var numFlippedNotFound = tiles.filter(aTile => (aTile.isFlipped && !aTile.isFound) ).length;
     console.log("Face up unpaired tiles before turning this tile: " + numFlippedNotFound)
-    
-    currentTileId = id;
-    if (autoCloseMode === no) {
-        //do nothing, let the regular logic handle it
-    } else if (tiles[currentTileIdx].isFlipped && tiles[currentTileIdx].isFound) {
-        //flipped and found, ignore
-    } else if (tiles[currentTileIdx].isFlipped && !tiles[currentTileIdx].isFound) {
-        //flipped but not found, so will be flipped down in main logic
+ 
 
-        if (currentTileId === newestTileId) {
-            //if it is newest, replace newest tile with oldest tile but also keep oldest
-            newestTileId = oldestTileId;
+    /* 
+     *    Prepare autoflipping tiles 
+     */
+
+    //no autoclose
+    if (autoCloseMode === no) {
+        //autoClose is not selected, so do nothing, let the regular game logic handle the click
+    }
+
+    //Do not turn face up tile to face down if they are allready found and locked
+    else if (tiles[currentTileIdx].isFlipped && tiles[currentTileIdx].isFound) {
+        //pass
+    }
+    //Turn face up tile to face down when clicked and not allready found
+    else if (tiles[currentTileIdx].isFlipped && !tiles[currentTileIdx].isFound) {
+        //tile was face up, and not allready found/paired, so player is trying to hide it
+        //note, if it was a bonus tile or a pair, it would allready be set to found in last click event
+
+        if (currentTileIdx === newestTileIdx) {
+            //if it is the (previously) newest tile we flipped, replace newest tile with oldest tile but also keep oldest as oldest
+            newestTileIdx = oldestTileIdx;
         }
         if (currentTileId === oldestTileId) {
-            //if it is oldest, replace oldest with newest, but keep newest
-            oldestTileId = newestTileId;
+            //if it is the (previously) oldest tile we flipped, replace oldest tile with newest, but also keep newest as newest
+            oldestTileIdx = newestTileIdx;
         }
-    } else if (autoCloseMode === "oldest" && numFlippedNotFound === 2) {
-        //TODO: flip down oldesst, then move oldest pointer to newest, and current to newest
-        oldestTile.style.backgroundColor = ("rgb(0, 0, " + (oldestTileId*10 + 50) + ")" ); //Make original shade of color
-        oldestTile.innerHTML = "?"; //or if you want tile id for debugging, use tile.id
-        tiles[oldestTileIdx].isFlipped = false;          
-        oldestTileId = newestTileId;
-        newestTileId = currentTileId;
-        numFlippedNotFound--;
-    } else if (autoCloseMode === "newest" && numFlippedNotFound === 2) {
-        //flip down newest, then store current pointer in newest
-        newestTile.style.backgroundColor = ("rgb(0, 0, " + (newestTileId*10 + 50) + ")" ); //Make original shade of color
-        newestTile.innerHTML = "?"; //or if you want tile id for debugging, use tile.id
-        tiles[newestTileIdx].isFlipped = false;          
-        //oldestTile = oldestTile;
-        newestTileId = currentTileId;
-        numFlippedNotFound--;
-    } else if (autoCloseMode === "both" && numFlippedNotFound === 2) {
-        //TODO: EXCLUDE CASE WHERE THEY ARE PAIRS or they can never be found, and probably do -1 for oldest/newest
-        //turn down both. then store -1 in first and last pointers
-        oldestTile.style.backgroundColor = ("rgb(0, 0, " + (oldestTileId*10 + 50) + ")" ); //Make original shade of color
-        oldestTile.innerHTML = "?"; //or if you want tile id for debugging, use tile.id
-        tiles[oldestTileIdx].isFlipped = false;          
-        newestTile.style.backgroundColor = ("rgb(0, 0, " + (newestTileId*10 + 50) + ")" ); //Make original shade of color
-        newestTile.innerHTML = "?"; //or if you want tile id for debugging, use tile.id
-        tiles[newestTileIdx].isFlipped = false;          
-        oldestTileId = -1;
-        newestTileId = -1;
-        numFlippedNotFound = 0;
-    } else {
-        //TODO: where and how is the best way to update with first/last values when first tile is turned
-        //here maybe, and if autoclose no, then nobody cares anyways if it's right
-        oldestTileId = newestTileId;
-        newestTileId = currentTileId;
     }
-    // TODO!!!!!!!!!!!!!! BUG ON BONUS TILE!!! when finding the bonus tile we have allready flipped it arround above here, so fix that
+    /* 
+     * with two tiles face up, we need to honor the autoClose choise
+     */
+    //Force flip oldest face up tile to face down
+    else if (autoCloseMode === "oldest" && numFlippedNotFound === 2) {
+        oldestTile.style.backgroundColor = ("rgb(0, 0, " + (oldestTileIdx*10 + 50) + ")" ); //Make original shade of color
+        // oldestTile.innerHTML = "?";
+        oldestTile.innerHTML = "? (Debug: idx " + oldestTileIdx + ", pair on idx " + tiles[oldestTileIdx].linkedTileId + ")";
+        tiles[oldestTileIdx].isFlipped = false;          
+        oldestTileIdx = newestTileIdx;
+        // Update newest, unless current tile is a bonus tile
+        if (tiles[currentTileIdx].linkedTileId !== -1) {
+            newestTileIdx = currentTileIdx;
+        }
+        numFlippedNotFound = 1;
+    }
+    //Force flip newest face up tile to face down
+    else if (autoCloseMode === "newest" && numFlippedNotFound === 2) {
+        newestTile.style.backgroundColor = ("rgb(0, 0, " + (newestTileIdx*10 + 50) + ")" ); //Make original shade of color
+        // newestTile.innerHTML = "?";
+        newestTile.innerHTML = "? (Debug: idx " + newestTileIdx + ", pair on idx " + tiles[newestTileIdx].linkedTileId + ")";
+        tiles[newestTileIdx].isFlipped = false;
+        // Update newest, unless current tile is a bonus tile
+        if (tiles[currentTileIdx].linkedTileId !== -1) {
+            newestTileIdx = currentTileIdx;
+        }
+        numFlippedNotFound = 1;
+    }
+    //Force flip both face up tiles to face down
+    else if (autoCloseMode === "both" && numFlippedNotFound === 2) {
+        oldestTile.style.backgroundColor = ("rgb(0, 0, " + (oldestTileId*10 + 50) + ")" ); //Make original shade of color
+        // oldestTile.innerHTML = "?";
+        oldestTile.innerHTML = "? (Debug: idx " + oldestTileIdx + ", pair on idx " + tiles[oldestTileIdx].linkedTileId + ")";
+        tiles[oldestTileIdx].isFlipped = false;          
+
+        newestTile.style.backgroundColor = ("rgb(0, 0, " + (newestTileId*10 + 50) + ")" ); //Make original shade of color
+        // newestTile.innerHTML = "?";
+        newestTile.innerHTML = "? (Debug: idx " + newestTileIdx + ", pair on idx " + tiles[newestTileIdx].linkedTileId + ")";
+        tiles[newestTileIdx].isFlipped = false;          
+
+        oldestTileIdx = currentTileIdx;
+        newestTileIdx = currentTileIdx;
+        numFlippedNotFound = 0;
+    }
+    //0 or 1 tiles allready flipped, so just update oldest and newest
+    else {
+        oldestTileIdx = newestTileIdx;
+
+        // Update newest, unless current tile is a bonus tile
+        if (tiles[currentTileIdx].linkedTileId !== -1) {
+            newestTileIdx = currentTileIdx;
+        }
+    }
 
 
 
+    /* 
+     *    Game logic for flipped tiles 
+     */
+
+    
     //Handle face up tiles
     if (tiles[currentTileIdx].isFlipped) {
         if (tiles[currentTileIdx].isFound) {
             console.log("This tile was allready found, so ignoring the click...")
         } else {
             console.log("was flipped so turning face down")
-            currentTile.style.backgroundColor = ("rgb(0, 0, " + (id*10 + 50) + ")" ); //Make original shade of color
+            currentTile.style.backgroundColor = ("rgb(0, 0, " + (currentTileIdx*10 + 50) + ")" ); //Make original shade of color
             currentTile.innerHTML = "?"; //or if you want tile id for debugging, use tile.id
             tiles[currentTileIdx].isFlipped = false;  
         }
     }
+
     //Handle face down tile
     else {
         //Not allowed to turn tiles if 2 allready turned
         if (numFlippedNotFound >= 2) {
             console.log("ignoring click and returning, player can't flip more than two unpaired cards at the same time!")
         } 
+
         //Handle turning the blank tile
-        else if (tiles[currentTileIdx].isUsed === false) {
+        else if (tiles[currentTileIdx].isUsed === false) { //TODO: refactor this, either call it bonus, or blank, and also rewrite the checks above that checks related !== -1 to use this check or smtn
             console.log("found blank tile, so lock it face up");
             tiles[currentTileIdx].isFound = true;
             tiles[currentTileIdx].isFlipped = true;
             currentTile.innerHTML = tiles[currentTileIdx].text + " BONUS<BR>:D ";
-            currentTile.style.backgroundColor = ("rgb(0, " + (id * 10 + 50) + ", 0)" ); //Make greenish in same nuance as original shade
+            currentTile.style.backgroundColor = ("rgb(0, " + (currentTileIdx * 10 + 50) + ", 0)" ); //Make greenish in same nuance as original shade
 
             numMoves++
         }
+
         //Handle finding pair
         else if ( tiles[linkedTileIdx].isFlipped ) { // inconcistent that linked tileid is zero based/index based!
             console.log("found matching tiles, so locking both face up");
             tiles[currentTileIdx].isFound = true;
             tiles[currentTileIdx].isFlipped = true;
             currentTile.innerHTML = tiles[currentTileIdx].text;
-            currentTile.style.backgroundColor = ("rgb(0, " + (id * 10 + 50) + ", 0)" ); //Make greenish in same nuance as original shade
+            currentTile.style.backgroundColor = ("rgb(0, " + (currentTileIdx * 10 + 50) + ", 0)" ); //Make greenish in same nuance as original shade
 
             tiles[linkedTileIdx].isFound = true;
-            //above is allready flipped
-            //above is allready with text
-            var tileLinked = document.getElementById(tiles[linkedTileIdx].id); //Just making it explicit, because on index which is zero based, we have the element with an id which is 1 based. We could just have added 1, but why not use the actuall id...
+            //above is allready flipped and showing text, so skip that
+            var tileLinked = document.getElementById(tiles[linkedTileIdx].id); 
             tileLinked.style.backgroundColor = ("rgb(0, " + (tileLinked.id * 10 + 50) + ", 0)" ); //Make greenish in same nuance as original shade
             
             numMoves++
@@ -376,8 +405,8 @@ function flipTile(id) {
         //Handle turning "wrong" tile, not pair
         else {
             console.log("found no matching tile flipped when flipping this, and wasn't a bonus tile")
-            currentTile.style.backgroundColor = ("rgb(" + (id * 10 + 50) + ", 0 , 0)" ); //Make redish in same nuance as original shade
-            currentTile.innerHTML = tiles[id-1].text;
+            currentTile.style.backgroundColor = ("rgb(" + (currentTileIdx * 10 + 50) + ", 0 , 0)" ); //Make redish in same nuance as original shade
+            currentTile.innerHTML = tiles[currentTileIdx].text;
             tiles[currentTileIdx].isFlipped = true;         
             
             numMoves++
@@ -385,8 +414,10 @@ function flipTile(id) {
 
     }
    
+    // Update score
     document.getElementById("currentgameinfo").innerHTML = "Moves used: " + numMoves + ", best score: " + bestScore;
 
+    // Handle game over
     if ( gameOver() ) {
         var elem = document.getElementById("currentgameinfo");
         elem.innerHTML = "Great job! GAME OVER! Moves used: " + numMoves + ", best score: " + bestScore;
@@ -399,14 +430,14 @@ function flipTile(id) {
         if (!gameIsRestarting) {
             gameIsRestarting = true;
 
-            // defer the execution of anonymous function for 3 seconds and go directly to next block of code.
+            // defer the execution of anonymous function and go directly to next block of code.
             setTimeout(function(){ 
                 startGame();
                 numMoves = 0;
-                setupGameBoard(); //TODO: this will later be called from showStartScreen based on settings there
+                setupGameBoard(); //TODO: We will add num rounds as part of setup, and then we need to go to setup game after x rounds, and we probably want a better game over screen also
                 gameIsRestarting = false;                
                 console.log("restart of game complete")
-            }, 5000);
+            }, 3500);
 
             console.log("restarting game set up as deferred for 5 seconds")
         }    
