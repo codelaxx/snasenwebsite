@@ -191,8 +191,8 @@ function generateInsertableSquare(idxNumber) {
     //Todo: make sure we have all Idx, not Id !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
     var item = document.createElement("div");
-    item.innerHTML = "?"; //Or if you want visible numbers for debugging, use idxNumber;
-    item.innerHTML = "? (Debug: idx " + idxNumber + ", pair on idx " + tiles[idxNumber].linkedTileId + ")";
+    item.innerHTML = "?";
+    // item.innerHTML = "? (Debug: idx " + idxNumber + ", pair on idx " + tiles[idxNumber].linkedTileId + ")";
     item.id = idxNumber;
     item.className = "grid-item";
     item.style.fontSize = "15px";
@@ -305,8 +305,8 @@ function flipTile(idx) {
     //Force flip oldest face up tile to face down
     else if (autoCloseMode === "oldest" && numFlippedNotFound === 2) {
         oldestTile.style.backgroundColor = ("rgb(0, 0, " + (oldestTileIdx*10 + 50) + ")" ); //Make original shade of color
-        // oldestTile.innerHTML = "?";
-        oldestTile.innerHTML = "? (Debug: idx " + oldestTileIdx + ", pair on idx " + tiles[oldestTileIdx].linkedTileId + ")";
+        oldestTile.innerHTML = "?";
+        // oldestTile.innerHTML = "? (Debug: idx " + oldestTileIdx + ", pair on idx " + tiles[oldestTileIdx].linkedTileId + ")";
         tiles[oldestTileIdx].isFlipped = false;          
         oldestTileIdx = newestTileIdx;
         // Update newest, unless current tile is a bonus tile
@@ -318,8 +318,8 @@ function flipTile(idx) {
     //Force flip newest face up tile to face down
     else if (autoCloseMode === "newest" && numFlippedNotFound === 2) {
         newestTile.style.backgroundColor = ("rgb(0, 0, " + (newestTileIdx*10 + 50) + ")" ); //Make original shade of color
-        // newestTile.innerHTML = "?";
-        newestTile.innerHTML = "? (Debug: idx " + newestTileIdx + ", pair on idx " + tiles[newestTileIdx].linkedTileId + ")";
+        newestTile.innerHTML = "?";
+        // newestTile.innerHTML = "? (Debug: idx " + newestTileIdx + ", pair on idx " + tiles[newestTileIdx].linkedTileId + ")";
         tiles[newestTileIdx].isFlipped = false;
         // Update newest, unless current tile is a bonus tile
         if (tiles[currentTileIdx].linkedTileId !== -1) {
@@ -330,13 +330,13 @@ function flipTile(idx) {
     //Force flip both face up tiles to face down
     else if (autoCloseMode === "both" && numFlippedNotFound === 2) {
         oldestTile.style.backgroundColor = ("rgb(0, 0, " + (oldestTileIdx*10 + 50) + ")" ); //Make original shade of color
-        // oldestTile.innerHTML = "?";
-        oldestTile.innerHTML = "? (Debug: idx " + oldestTileIdx + ", pair on idx " + tiles[oldestTileIdx].linkedTileId + ")";
+        oldestTile.innerHTML = "?";
+        // oldestTile.innerHTML = "? (Debug: idx " + oldestTileIdx + ", pair on idx " + tiles[oldestTileIdx].linkedTileId + ")";
         tiles[oldestTileIdx].isFlipped = false;          
 
         newestTile.style.backgroundColor = ("rgb(0, 0, " + (newestTileIdx*10 + 50) + ")" ); //Make original shade of color
-        // newestTile.innerHTML = "?";
-        newestTile.innerHTML = "? (Debug: idx " + newestTileIdx + ", pair on idx " + tiles[newestTileIdx].linkedTileId + ")";
+        newestTile.innerHTML = "?";
+        // newestTile.innerHTML = "? (Debug: idx " + newestTileIdx + ", pair on idx " + tiles[newestTileIdx].linkedTileId + ")";
         tiles[newestTileIdx].isFlipped = false;          
 
         oldestTileIdx = currentTileIdx;
@@ -367,7 +367,8 @@ function flipTile(idx) {
         } else {
             console.log("was flipped so turning face down")
             currentTile.style.backgroundColor = ("rgb(0, 0, " + (currentTileIdx*10 + 50) + ")" ); //Make original shade of color
-            currentTile.innerHTML = "?"; //or if you want tile id for debugging, use tile.id
+            currentTile.innerHTML = "?";
+            // currentTile.innerHTML = "? (Debug: idx " + currentTileIdx + ", pair on idx " + tiles[currentTileIdx].linkedTileId + ")";
             tiles[currentTileIdx].isFlipped = false;  
         }
     }
