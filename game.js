@@ -188,6 +188,8 @@ function findRandomAvailableTileIndex() {
 
 
 function generateInsertableSquare(idxNumber) {
+    //Todo: make sure we have all Idx, not Id !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
     var item = document.createElement("div");
     item.innerHTML = "?"; //Or if you want visible numbers for debugging, use idxNumber;
     item.innerHTML = "? (Debug: idx " + idxNumber + ", pair on idx " + tiles[idxNumber].linkedTileId + ")";
@@ -287,11 +289,12 @@ function flipTile(idx) {
         //tile was face up, and not allready found/paired, so player is trying to hide it
         //note, if it was a bonus tile or a pair, it would allready be set to found in last click event
 
+        //TODO: looke at the logic here, double if, not if/else, and also how do this get affected by -1 etc
         if (currentTileIdx === newestTileIdx) {
             //if it is the (previously) newest tile we flipped, replace newest tile with oldest tile but also keep oldest as oldest
             newestTileIdx = oldestTileIdx;
         }
-        if (currentTileId === oldestTileId) {
+        if (currentTileIdx === oldestTileIdx) {
             //if it is the (previously) oldest tile we flipped, replace oldest tile with newest, but also keep newest as newest
             oldestTileIdx = newestTileIdx;
         }
@@ -326,12 +329,12 @@ function flipTile(idx) {
     }
     //Force flip both face up tiles to face down
     else if (autoCloseMode === "both" && numFlippedNotFound === 2) {
-        oldestTile.style.backgroundColor = ("rgb(0, 0, " + (oldestTileId*10 + 50) + ")" ); //Make original shade of color
+        oldestTile.style.backgroundColor = ("rgb(0, 0, " + (oldestTileIdx*10 + 50) + ")" ); //Make original shade of color
         // oldestTile.innerHTML = "?";
         oldestTile.innerHTML = "? (Debug: idx " + oldestTileIdx + ", pair on idx " + tiles[oldestTileIdx].linkedTileId + ")";
         tiles[oldestTileIdx].isFlipped = false;          
 
-        newestTile.style.backgroundColor = ("rgb(0, 0, " + (newestTileId*10 + 50) + ")" ); //Make original shade of color
+        newestTile.style.backgroundColor = ("rgb(0, 0, " + (newestTileIdx*10 + 50) + ")" ); //Make original shade of color
         // newestTile.innerHTML = "?";
         newestTile.innerHTML = "? (Debug: idx " + newestTileIdx + ", pair on idx " + tiles[newestTileIdx].linkedTileId + ")";
         tiles[newestTileIdx].isFlipped = false;          
