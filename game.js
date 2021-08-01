@@ -254,8 +254,8 @@ function generateInsertableSquare(idNumber, isMovable) {
 
 function flipTile(id) {
     var currentTile = document.getElementById(id);
-    var tileIdx = id-1;
-    var linkedTileIdx = tiles[tileIdx].linkedTileId;
+    var currentTileIdx = id-1;
+    var linkedTileIdx = tiles[currentTileIdx].linkedTileId;
 
     var oldestTile = document.getElementById(oldestTileId);
     var oldestTileIdx = oldestTileId-1;
@@ -265,10 +265,11 @@ function flipTile(id) {
 
 
 
-    if (tiles[tileIdx].isUsed) {
-        debug("Tile " + id + ", index " + tileIdx + " had isFlipped state: " + tiles[tileIdx].isFlipped + ", and related tile index " + linkedTileIdx + ", with tile id " + (linkedTileIdx + 1) + " has flippedState " + tiles[linkedTileIdx].isFlipped);
+    if (tiles[currentTileIdx].isUsed) {
+        debug("BEFORE: Tile/idx " + id + "/" + currentTileIdx + ", isFlipped: " + tiles[currentTileIdx].isFlipped + ", related/idx " + (linkedTileIdx+1) + "/" + linkedTileIdx + ", isFlipped: " + tiles[linkedTileIdx].isFlipped);
+        debug("BEFORE: OldestIdx: " + oldestTileIdx + ", newestIdx: " + newestTileIdx + ", currentIdx: " + currentTileIdx)
     } else {
-        debug("Tile " + id + ", index " + tileIdx + " had isFlipped state: " + tiles[tileIdx].isFlipped + ", no related tile since it's a blank bonus tile");
+        debug("BEFORE: Tile/idx " + id + "/" + currentTileIdx + ", isFlipped: " + tiles[currentTileIdx].isFlipped + ", no related tile since it's a blank bonus tile");
     }
 
     //https://medium.com/poka-techblog/simplify-your-javascript-use-map-reduce-and-filter-bd02c593cc2d
@@ -278,10 +279,11 @@ function flipTile(id) {
     currentTileId = id;
     if (autoCloseMode === no) {
         //do nothing, let the regular logic handle it
-    } else if (tiles[tileIdx].isFlipped && tiles[tileIdx].isFound) {
+    } else if (tiles[currentTileIdx].isFlipped && tiles[currentTileIdx].isFound) {
         //flipped and found, ignore
-    } else if (tiles[tileIdx].isFlipped && !tiles[tileIdx].isFound) {
-        //flipped but not found, so will be flipped down in main logic below
+    } else if (tiles[currentTileIdx].isFlipped && !tiles[currentTileIdx].isFound) {
+        //flipped but not found, so will be flipped down in main logic
+
         if (currentTileId === newestTileId) {
             //if it is newest, replace newest tile with oldest tile but also keep oldest
             newestTileId = oldestTileId;
@@ -329,14 +331,14 @@ function flipTile(id) {
 
 
     //Handle face up tiles
-    if (tiles[tileIdx].isFlipped) {
-        if (tiles[tileIdx].isFound) {
+    if (tiles[currentTileIdx].isFlipped) {
+        if (tiles[currentTileIdx].isFound) {
             console.log("This tile was allready found, so ignoring the click...")
         } else {
             console.log("was flipped so turning face down")
             currentTile.style.backgroundColor = ("rgb(0, 0, " + (id*10 + 50) + ")" ); //Make original shade of color
             currentTile.innerHTML = "?"; //or if you want tile id for debugging, use tile.id
-            tiles[tileIdx].isFlipped = false;  
+            tiles[currentTileIdx].isFlipped = false;  
         }
     }
     //Handle face down tile
@@ -346,11 +348,11 @@ function flipTile(id) {
             console.log("ignoring click and returning, player can't flip more than two unpaired cards at the same time!")
         } 
         //Handle turning the blank tile
-        else if (tiles[tileIdx].isUsed === false) {
+        else if (tiles[currentTileIdx].isUsed === false) {
             console.log("found blank tile, so lock it face up");
-            tiles[tileIdx].isFound = true;
-            tiles[tileIdx].isFlipped = true;
-            currentTile.innerHTML = tiles[tileIdx].text + " BONUS<BR>:D ";
+            tiles[currentTileIdx].isFound = true;
+            tiles[currentTileIdx].isFlipped = true;
+            currentTile.innerHTML = tiles[currentTileIdx].text + " BONUS<BR>:D ";
             currentTile.style.backgroundColor = ("rgb(0, " + (id * 10 + 50) + ", 0)" ); //Make greenish in same nuance as original shade
 
             numMoves++
@@ -358,9 +360,9 @@ function flipTile(id) {
         //Handle finding pair
         else if ( tiles[linkedTileIdx].isFlipped ) { // inconcistent that linked tileid is zero based/index based!
             console.log("found matching tiles, so locking both face up");
-            tiles[tileIdx].isFound = true;
-            tiles[tileIdx].isFlipped = true;
-            currentTile.innerHTML = tiles[tileIdx].text;
+            tiles[currentTileIdx].isFound = true;
+            tiles[currentTileIdx].isFlipped = true;
+            currentTile.innerHTML = tiles[currentTileIdx].text;
             currentTile.style.backgroundColor = ("rgb(0, " + (id * 10 + 50) + ", 0)" ); //Make greenish in same nuance as original shade
 
             tiles[linkedTileIdx].isFound = true;
@@ -376,7 +378,7 @@ function flipTile(id) {
             console.log("found no matching tile flipped when flipping this, and wasn't a bonus tile")
             currentTile.style.backgroundColor = ("rgb(" + (id * 10 + 50) + ", 0 , 0)" ); //Make redish in same nuance as original shade
             currentTile.innerHTML = tiles[id-1].text;
-            tiles[tileIdx].isFlipped = true;         
+            tiles[currentTileIdx].isFlipped = true;         
             
             numMoves++
         }
@@ -409,6 +411,9 @@ function flipTile(id) {
             console.log("restarting game set up as deferred for 5 seconds")
         }    
     }
+
+    debug("AFTER : OldestIdx: " + oldestTileIdx + ", newestIdx: " + newestTileIdx + ", currentIdx: " + currentTileIdx)
+    debug("****************************************");
 };
 
 function gameOver() {

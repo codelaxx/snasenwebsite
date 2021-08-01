@@ -20,8 +20,9 @@
 }
 
 #debuginfo {
-    /* display: inline-block; */
-    display: none; /* removes from view, ie takes zero space */
+    /* 'none' removes from view, ie takes zero space, vs visible with 'inline-block' */
+    /* display: none;  */
+    display: inline-block;
     visibility: visible; /* value hidden hides it, but still takes up actuall space of element */
     margin-top: 20px;
     background-color: lightslategrey;
